@@ -35,6 +35,14 @@ The client SHALL map every non-2xx response or network failure to exactly one er
 - **WHEN** the API responds 401, 404 or 422
 - **THEN** the error is `unauthorized`, `notFound` or `insufficientFunds` respectively
 
+#### Scenario: Other statuses
+- **WHEN** the API responds with another 4xx (e.g. 403 or 409) or with a 5xx
+- **THEN** the error is `badRequest` or `server` respectively
+
+#### Scenario: Untrustworthy success response
+- **WHEN** a 2xx response carries a movement or account whose amount is not a finite number, or whose currency, type, direction or status is unknown
+- **THEN** the error is `server` and no amount from that response reaches the UI
+
 ### Requirement: No retries on client errors
 Data fetching SHALL NOT retry requests that failed with a 4xx response, and SHALL retry `network` and `server` errors at most once. Mutations SHALL never be retried automatically.
 

@@ -22,7 +22,7 @@ Greenfield React app over a mock API we cannot change. The API's verified quirks
 ### Domain modules (`src/domain`)
 | Module | Contents |
 |---|---|
-| `types.ts` | `Currency`, `Cents`, and `Movement` / `Account` with only the fields domain rules read |
+| `types.ts` | `Currency`, `Cents`, `User`, and `Movement` / `Account`: the fields domain rules read plus the display fields rows need (`id`, `description`, `createdAt`); no API-only fields. `MovementStatus` includes `failed` (allowed by the API schema, produced by no current flow): such a row is listed as "Fallida" and never counts as in progress |
 | `money.ts` | `parseAmount(input) → Result<Cents, AmountError>`, `toCents(apiNumber)`, `toApiAmount(cents)`, `formatMoney(cents, currency)`, `totalsByCurrency(items)`, `signedAmount(movement)` |
 | `balances.ts` | `accountFigures(account, pendingTransfers \| 'unknown') → { settled, inProgress, available }`; filters the account's `pending` outgoing transfers itself |
 | `funds.ts` | `canDebit(amount, available \| 'unknown') → ok \| insufficient (with available) \| unknownAvailable` |
@@ -41,20 +41,33 @@ Greenfield React app over a mock API we cannot change. The API's verified quirks
 - **Signed amounts:** `signedAmount` decides the sign of a row (expense or outgoing transfer → negative), so components never derive it.
 
 ### API layer (`src/api`)
-- `client.ts`: `request<T>(method, path, body?)`. Adds the token, sets JSON content type, parses JSON only when `content-type` is JSON, and throws an `ApiError` with a `kind` (see the `api-client` spec). The token is read from a session getter injected at startup, so `api` does not depend on React.
-- `endpoints.ts`: one typed function per endpoint, mapping DTOs to domain types (amounts to cents at this boundary).
+- `client.ts`: `createApiClient({ baseUrl, fetch, getToken, onUnauthorized })` returns `request(method, path, { body, query, auth })`. `baseUrl`, `fetch` and the session hooks are injected, so `api` depends on neither React nor `config`, and tests need no globals. It sends `Authorization` unless `auth: false` (login), sets `Content-Type: application/json` only when there is a body, parses JSON only when the response says it is JSON (an unparseable body counts as no body), and throws an `ApiError`.
+- `errors.ts`: `ApiError` with a `kind`, `toApiError(status, body)` and `shouldRetry(failureCount, error)`.
+
+  | Response | `kind` |
+  |---|---|
+  | 400 with `errors[]` | `validation`, messages per field |
+  | 400 with `error`, or any other 4xx not listed below (403, 409…) | `badRequest`; the message is kept for logging only |
+  | 400 without a JSON body (HTML stack trace) | `badRequest` without a message; the body is discarded |
+  | 401 / 404 / 422 | `unauthorized` / `notFound` / `insufficientFunds` |
+  | 5xx | `server` |
+  | No response (down, CORS, offline) | `network` |
+  | 2xx whose data money rules cannot trust (non-finite amount, unknown currency, type, direction or status) | `server` |
+- `dto.ts` + `endpoints.ts`: DTO shapes and one typed function per endpoint, with hand-written guards that map DTOs to domain types (amounts to cents at this boundary). No schema library: the guards cover a handful of fields.
+- **Not called:** `GET /auth/me`, because login already returns the user and it is kept in the session, and an invalid stored token is caught by the first 401; `GET /categories`, because the domain needs the same 10 ids anyway to give them Spanish labels, and the mock API's list is fixed.
 
 ### Server state (TanStack Query)
-- Query keys: `['accounts']`, `['pendingTransfers']`, `['movements', filters]`, `['categories']`.
-- `QueryClient` defaults: `retry` returns false for 4xx `ApiError`s and allows 1 retry otherwise; mutations `retry: 0`. A global `onError` for `unauthorized` ends the session (session spec).
+- Query keys: `['accounts']`, `['pendingTransfers']`, `['movements', filters]`.
+- `QueryClient` defaults (`createQueryClient()`, a fresh client per test): `retry` uses `shouldRetry` (no retry for 4xx, at most one for `network` and `server`); mutations `retry: 0`.
+- **401:** the client calls `onUnauthorized` only for authenticated requests, and the session ends (session spec). A 401 from login therefore stays a wrong-credentials error. This replaces a global `onError` on the `QueryClient`, which would also have seen the login 401.
 - Mutations invalidate `['accounts']`, `['pendingTransfers']` and `['movements']` on success.
 - Accounts screen combines `['accounts']` + `['pendingTransfers']` through `accountFigures`. If `['pendingTransfers']` fails, available is unknown and debits are blocked (fail closed: with money, an unknown available is not "the full balance").
 
 ### Session
-React context holding `{ token, user }`, persisted in `sessionStorage`: it survives reloads and ends with the tab. `localStorage` was rejected because a wallet session should not outlive the tab. Zustand is unnecessary for one value.
+A small store outside React holds `{ token, user }` or the reason the session ended (`loggedOut` or `expired`), persisted in `sessionStorage`: it survives reloads and ends with the tab. The API client reads the token from it, and React reads it through a context (`useSyncExternalStore`). Ending the session clears the query cache and is idempotent, because several requests can return 401 at once. A missing, corrupt or wrong-shaped stored value means signed out. `localStorage` was rejected because a wallet session should not outlive the tab. Zustand is unnecessary for one value.
 
 ### Search
-Debounced 300 ms in the hook; filters and page live in the URL query string so a filtered view survives reloads and the back button.
+Debounced 300 ms in the hook; filters and page live in the URL query string so a filtered view survives reloads and the back button. Reading and writing the URL are pure functions in `features/movements/filters.ts`: unknown values (`type=xyz`, `page=0`, `page=abc`) fall back to their defaults, and changing any filter resets the page to 1.
 
 ## Risks / Trade-offs
 

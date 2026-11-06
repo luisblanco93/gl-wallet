@@ -13,7 +13,7 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 ## 2. API layer
 
 - [ ] 2.1 `client`: tests with a mocked `fetch` for each error kind (field errors, message, HTML body, 401/404/422, network) and the auth header; then implement
-- [ ] 2.2 `endpoints`: typed functions for login, me, accounts (list, create), transactions (list with filters, create, patch), pending transfers, categories; DTO → domain mapping tests for amounts
+- [ ] 2.2 `endpoints`: typed functions for login, accounts (list, create), transactions (list with filters, create, patch) and pending transfers; DTO → domain mapping tests for amounts and for untrustworthy responses (`/auth/me` and `/categories` are not called, see design)
 
 ## 3. App wiring
 
@@ -26,6 +26,7 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 - [ ] 4.1 `useAccounts` combining accounts + pending transfers into account figures (fail closed on unknown available)
 - [ ] 4.2 `useMovements(filters)` with debounced search and pagination
 - [ ] 4.3 `useCreateMovement`, `useEditMovement`, `useCreateAccount` with invalidations
+- [ ] 4.4 `useLogin`: sign in and store the session; a 401 here means wrong credentials, not an expired session
 
 ## 5. UI (blocked until the Claude Design handoff)
 

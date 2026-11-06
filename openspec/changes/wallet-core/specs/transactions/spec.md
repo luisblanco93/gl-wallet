@@ -16,6 +16,10 @@ The system SHALL list movements of all accounts or of one account, newest first,
 - **WHEN** a listed movement has status `pending`
 - **THEN** its row shows a "Pendiente" badge with icon and text, not color alone
 
+#### Scenario: Failed movement
+- **WHEN** a listed movement has status `failed`
+- **THEN** its row shows a "Fallida" badge with icon and text, and it is not counted as in progress
+
 #### Scenario: No results for the filters
 - **WHEN** the filters match nothing
 - **THEN** an empty state with "Limpiar filtros" is shown

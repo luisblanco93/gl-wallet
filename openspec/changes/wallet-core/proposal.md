@@ -41,4 +41,4 @@ The wallet needs its foundation before transfers can exist: a session, a trustwo
 ## Impact
 
 - New code in `src/domain` (money, balances, funds, editability), `src/api` (client, errors, endpoints) and `src/features` (auth, accounts, transactions hooks; UI pending the design).
-- Depends on the mock API endpoints: `/auth/login`, `/auth/me`, `/accounts`, `/transactions`, `/categories`.
+- Depends on the mock API endpoints: `/auth/login`, `/accounts`, `/transactions`.
