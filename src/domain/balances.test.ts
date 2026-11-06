@@ -6,6 +6,7 @@ const ANA = { id: 'acc-ana', balance: 72000000 }
 
 function transfer(overrides: Partial<Movement> = {}): Movement {
   return {
+    id: 'transfer-1-out',
     accountId: ANA.id,
     type: 'transfer',
     direction: 'out',
@@ -14,6 +15,8 @@ function transfer(overrides: Partial<Movement> = {}): Movement {
     category: 'transfer',
     status: 'pending',
     counterpartAccountId: 'acc-4',
+    description: '',
+    createdAt: '2026-11-06T12:00:00.000Z',
     ...overrides,
   }
 }
@@ -45,10 +48,11 @@ describe('accountFigures', () => {
     expect(figures.available).toBe(-28000000)
   })
 
-  it('ignores incoming, completed, other-account and non-transfer movements', () => {
+  it('ignores incoming, completed, failed, other-account and non-transfer movements', () => {
     const ignored = [
       transfer({ direction: 'in' }),
       transfer({ status: 'completed' }),
+      transfer({ status: 'failed' }),
       transfer({ accountId: 'acc-other' }),
       transfer({ type: 'expense', direction: null, counterpartAccountId: null }),
     ]

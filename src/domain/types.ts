@@ -5,10 +5,12 @@ export type Cents = number
 
 export type MovementType = 'income' | 'expense' | 'transfer'
 export type TransferDirection = 'in' | 'out'
-export type MovementStatus = 'pending' | 'completed'
+/** `failed` is allowed by the API schema but produced by no current flow; it never counts as in progress. */
+export type MovementStatus = 'pending' | 'completed' | 'failed'
 
-/** Only the fields domain rules read; the API DTO stays in `src/api`. */
+/** Fields domain rules read plus the display fields rows need; the API DTO stays in `src/api`. */
 export type Movement = {
+  readonly id: string
   readonly accountId: string
   readonly type: MovementType
   /** Set only for transfers. */
@@ -20,6 +22,9 @@ export type Movement = {
   readonly status: MovementStatus
   /** Set only for transfers: the other side's account id. */
   readonly counterpartAccountId: string | null
+  readonly description: string
+  /** ISO 8601 timestamp. */
+  readonly createdAt: string
 }
 
 export type Account = {
@@ -28,4 +33,10 @@ export type Account = {
   readonly currency: Currency
   /** Settled balance as reported by the API (completed movements only). */
   readonly balance: Cents
+}
+
+export type User = {
+  readonly id: string
+  readonly email: string
+  readonly name: string
 }
