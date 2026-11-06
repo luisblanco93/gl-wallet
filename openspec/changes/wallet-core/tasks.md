@@ -5,7 +5,7 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 ## 1. Domain (pure TypeScript, tests first)
 
 - [x] 1.1 `money`: tests for parsing (comma/dot, 2 decimals, min 0.01, invalid input), cents ↔ API conversion with float rounding, es-AR formatting (ARS/USD/EUR, `−`), totals per currency; then implement
-- [ ] 1.2 `balances`: tests for settled / in progress / available with and without pending outgoing transfers; then implement
+- [x] 1.2 `balances`: tests for settled / in progress / available with and without pending outgoing transfers; then implement
 - [ ] 1.3 `funds`: tests for `canDebit` (below, equal, above available); then implement
 - [ ] 1.4 `editability` and `categories`: tests for editable fields per movement type and selectable categories; then implement
 - [ ] 1.5 `transferLabel`: tests for own-account and foreign counterpart; then implement
