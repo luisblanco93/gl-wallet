@@ -63,6 +63,7 @@ src/app/       providers, router, layout
   - When in doubt, choose the smaller change and say what was left out.
 - **TDD for domain code:** write the failing test from the spec scenario, then implement. Tests live next to the code (`*.test.ts`).
 - **Done means:** `npm run typecheck && npm run lint && npm test` green, reported with the actual result. UI changes are also checked in the running app.
+- **Review gate:** at the end of every implementation block, before merging, run the `product-owner` agent (compliance with the OpenSpec change and this file) and the `security-gate` agent (frontend security). Fix every BLOCKER, CRITICAL or HIGH finding, or record why it stays, before reporting the block as done. Both agents are defined in `.claude/agents/`.
 - **Evidence over assumptions:** never state a mock API behaviour without reading `../mock-api/index.ts` or reproducing it against the running API.
 - **Git:** do not commit, push or branch unless the user asks. Conventional commits. `.claude/`, `CLAUDE.md` and the mock API are never committed.
 - **Mock API:** never modify it or copy it into this repo. Running it is fine; reseed (`npm run seed`) after destructive probes. Temporary scripts stay out of the repo.
