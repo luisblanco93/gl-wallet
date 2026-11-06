@@ -22,14 +22,22 @@ Greenfield React app over a mock API we cannot change. The API's verified quirks
 ### Domain modules (`src/domain`)
 | Module | Contents |
 |---|---|
-| `money.ts` | `Cents` type, `parseAmount(input) → Result<Cents, AmountError>`, `toCents(apiNumber)`, `toApiAmount(cents)`, `formatMoney(cents, currency)`, `totalsByCurrency(items)` |
-| `balances.ts` | `accountFigures(balance, pendingOutgoing[]) → { settled, inProgress, available }` |
-| `funds.ts` | `canDebit(amount, available) → { ok: true } \| { ok: false, available }` |
+| `types.ts` | `Currency`, `Cents`, and `Movement` / `Account` with only the fields domain rules read |
+| `money.ts` | `parseAmount(input) → Result<Cents, AmountError>`, `toCents(apiNumber)`, `toApiAmount(cents)`, `formatMoney(cents, currency)`, `totalsByCurrency(items)`, `signedAmount(movement)` |
+| `balances.ts` | `accountFigures(account, pendingTransfers \| 'unknown') → { settled, inProgress, available }`; filters the account's `pending` outgoing transfers itself |
+| `funds.ts` | `canDebit(amount, available \| 'unknown') → ok \| insufficient (with available) \| unknownAvailable` |
 | `editability.ts` | `editableFields(movement) → ('category' \| 'description')[]`, `editBlockReason(movement)` |
-| `categories.ts` | category ids, Spanish labels, `selectableCategories` (excludes `transfer`) |
+| `categories.ts` | category ids, Spanish labels, `selectableCategories` (excludes `transfer`), `categoryLabel(id)` |
 | `transferLabel.ts` | `transferLabel(movement, ownAccounts) → "Transferencia a/desde …"` |
 
-`Result` is a small discriminated union; no exceptions for expected validation outcomes.
+`Result` is a small discriminated union, defined in `money.ts` until a second module needs it; no exceptions for expected validation outcomes.
+
+### Money details
+- **Fail closed in the domain:** an unknown available is a value (`'unknown'`), not a hook decision. `accountFigures` produces it when pending transfers fail to load, and `canDebit` blocks on it.
+- **Parsing from text:** `parseAmount` validates the string and builds cents from its integer and decimal parts; it never multiplies a float. Error kinds: `empty`, `invalid` (negative, non-numeric, several separators), `tooManyDecimals`, `belowMinimum`, `tooLarge` (not a safe integer).
+- **Formatting without `Intl` currency style:** in Node 24 it prints `EUR 1,00` and an ASCII hyphen, and ICU output varies between engines. `formatMoney` uses `Intl` only for thousands grouping and adds its own symbols (`$`, `US$`, `€`), the `−` sign (U+2212) and a non-breaking space so the symbol never wraps away from the number.
+- **Reading API floats:** `toCents` rounds after `toPrecision(15)` to drop binary noise (`1.005 → 101`) and never returns `-0`.
+- **Signed amounts:** `signedAmount` decides the sign of a row (expense or outgoing transfer → negative), so components never derive it.
 
 ### API layer (`src/api`)
 - `client.ts`: `request<T>(method, path, body?)`. Adds the token, sets JSON content type, parses JSON only when `content-type` is JSON, and throws an `ApiError` with a `kind` (see the `api-client` spec). The token is read from a session getter injected at startup, so `api` does not depend on React.
@@ -52,3 +60,4 @@ Debounced 300 ms in the hook; filters and page live in the URL query string so a
 - **Pending transfers beyond 50**: the API caps `pageSize` at 50. Available is computed from one page of pending outgoing transfers. Since transfers settle in ~1.5 s, more than 50 pending at once is unrealistic; documented, not handled.
 - **Stale available between fetch and submit**: the client check can pass while the server rejects with 422. Handled by the `insufficientFunds` error path (accounts refetch + message).
 - **Server balance is a float**: converted to cents on read with rounding; display never shows float artifacts.
+- **No thousands separators in amount input**: `1.234` reads as 1 with 3 decimals and fails with "maximum 2 decimals" instead of being guessed as 1234. The spec only requires `,` or `.` as decimal separator; failing is safer than guessing with money.
