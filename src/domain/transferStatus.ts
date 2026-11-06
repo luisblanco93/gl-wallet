@@ -18,7 +18,8 @@ export type PollDecision =
 export function nextPoll(status: MovementStatus, elapsedMs: number): PollDecision {
   if (status === 'completed') return { poll: false, outcome: 'completed' }
   if (status === 'failed') return { poll: false, outcome: 'failed' }
-  if (elapsedMs >= TRANSFER_POLL_MAX_MS) return { poll: false, outcome: 'delayed' }
+  // Written as "not below the cap" so an unreadable time (NaN) stops instead of polling forever.
+  if (!(elapsedMs < TRANSFER_POLL_MAX_MS)) return { poll: false, outcome: 'delayed' }
   return { poll: true, inMs: TRANSFER_POLL_INTERVAL_MS }
 }
 
