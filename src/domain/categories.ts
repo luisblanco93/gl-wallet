@@ -30,6 +30,22 @@ const LABELS: Readonly<Record<CategoryId, string>> = {
 /** `transfer` is set only by the API on transfer movements. */
 export const selectableCategories: readonly CategoryId[] = CATEGORY_IDS.filter((id) => id !== 'transfer')
 
+const INCOME_CATEGORIES: readonly CategoryId[] = ['salary', 'freelance', 'other']
+const EXPENSE_CATEGORIES: readonly CategoryId[] = [
+  'rent',
+  'groceries',
+  'transport',
+  'entertainment',
+  'utilities',
+  'health',
+  'other',
+]
+
+/** Categories offered when recording or editing a movement of this type; never `transfer`. */
+export function categoriesFor(type: 'income' | 'expense'): readonly CategoryId[] {
+  return type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES
+}
+
 function isCategoryId(id: string): id is CategoryId {
   return (CATEGORY_IDS as readonly string[]).includes(id)
 }

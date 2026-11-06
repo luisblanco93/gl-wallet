@@ -71,6 +71,12 @@ export function formatMoney(cents: Cents, currency: Currency): string {
   return `${sign}${SYMBOLS[currency]}${NBSP}${units},${decimals}`
 }
 
+/** Like `formatMoney`, with `+` before positive amounts (incomes). */
+export function formatSignedMoney(cents: Cents, currency: Currency): string {
+  const formatted = formatMoney(cents, currency)
+  return cents > 0 ? `+${formatted}` : formatted
+}
+
 export type CurrencyTotal = { readonly currency: Currency; readonly total: Cents }
 
 /** One total per currency, in order of first appearance. Amounts of different currencies are never added. */
