@@ -33,12 +33,12 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 - [x] 5.1 Tokens in `src/index.css`, shared UI adapted from the handoff, domain formatting (`formatSignedMoney`, `formatDate`, `categoriesFor`), app shell with navigation, toasts and focus on the page title
 - [x] 5.2 Login screen with all states (field errors, wrong credentials, submitting, session expired)
 - [x] 5.3 Home: account cards (available, in progress, unknown), recent movements, actions, loading/empty/error
-- [ ] 5.4 Movements screen: filters, search, chips, pagination, empty/no-results/error states
-- [ ] 5.5 Movement detail panel and edit (`/movimientos/:id`, `getMovement`, `transferId` for the receipt)
-- [ ] 5.6 New movement form (debit rule blocks) and new account
-- [ ] 5.7 Component tests for the critical flows: login error, expense above available blocked, transfer edit blocked
+- [x] 5.4 Movements screen: filters, search, chips, pagination, empty/no-results/error states
+- [x] 5.5 Movement detail panel and edit (`/movimientos/:id`, `getMovement`, `transferId` for the receipt)
+- [x] 5.6 New movement form (debit rule blocks) and new account
+- [x] 5.7 Component tests for the critical flows: login error, expense above available blocked, transfer edit blocked
 
 ## 6. Verification
 
-- [ ] 6.1 `npm run typecheck && npm run lint && npm test` green
-- [ ] 6.2 Manual run against the mock API with `demo@example.com`: every scenario in the specs
+- [x] 6.1 `npm run typecheck && npm run lint && npm test` green
+- [x] 6.2 Manual run against the mock API with `demo@example.com`: every scenario in the specs

@@ -57,7 +57,7 @@ Greenfield React app over a mock API we cannot change. The API's verified quirks
 - **Not called:** `GET /auth/me`, because login already returns the user and it is kept in the session, and an invalid stored token is caught by the first 401; `GET /categories`, because the domain needs the same 10 ids anyway to give them Spanish labels, and the mock API's list is fixed.
 
 ### Server state (TanStack Query)
-- Query keys: `['accounts']`, `['pendingTransfers']`, `['movements', filters]`.
+- Query keys: `['accounts']`, `['pendingTransfers']`, `['movements', filters]` and `['movements', 'detail', id]` (under the same prefix, so every mutation refreshes the open detail too).
 - `QueryClient` defaults (`createQueryClient()`, a fresh client per test): `retry` uses `shouldRetry` (no retry for 4xx, at most one for `network` and `server`); mutations `retry: 0`.
 - **401:** the client calls `onUnauthorized` only for authenticated requests, and the session ends (session spec). A 401 from login therefore stays a wrong-credentials error. This replaces a global `onError` on the `QueryClient`, which would also have seen the login 401.
 - Mutations invalidate `['accounts']`, `['pendingTransfers']` and `['movements']` on success.
@@ -77,7 +77,7 @@ Filters and page live in the URL query string so a filtered view survives reload
 
 ### UI (design handoff)
 - **Source:** the Claude Design handoff is the visual source of truth (tokens, copy, states). Its presentational components are adapted into `src/shared/ui` and feature folders after review; its `lib/format.ts` and view-models are not used, because they work with floats: every figure comes from the domain in cents.
-- **Formatting added to the domain:** `formatSignedMoney` (`+` for incomes, `−` for debits), `formatDate` (`5 nov 2026, 14:30`, Buenos Aires time) and `categoriesFor(type)`.
+- **Formatting added to the domain:** `formatSignedMoney` (`+` for incomes, `−` for debits), `formatDate` (`5 nov 2026, 14:30`, Buenos Aires time), `categoriesFor(type)`, `formatAmountInput` (the amount field tidied on blur, `20.000,00`), `currencySymbol` (the symbol inside amount fields) and `availableAfter` (available once a movement is recorded).
 - **View models:** pure functions in each feature turn domain objects into the props the components render (labels, tone, notes, aria labels), so components hold no rules.
 - **States the handoff does not draw**, built from its system: available unknown on an account card (warning with "Reintentar"), the "Fallida" badge (error tokens, `circle-alert`) and the new-account form.
 - **Own-account transfers** keep one row per side (`DECISIONS.md`), although the handoff groups them.
@@ -85,6 +85,15 @@ Filters and page live in the URL query string so a filtered view survives reload
 - **Routes:** `/login`, `/`, `/movimientos`, `/movimientos/nuevo`, `/movimientos/:id` and `/transferir` (placeholder owned by the `transfers` change).
 - **Dependencies:** `lucide-react`, required by the handoff's icon set. No `clsx` (a small join helper is enough) and no focus-trap library: the detail panel is a native `<dialog>` opened with `showModal()`, which traps focus and closes on Escape; focus returns to the row by hand.
 - **Fonts:** Caprasimo and Figtree load from Google Fonts, a runtime request to an external server.
+- **Detail as a child route:** `/movimientos/:id` renders inside the movements page (`Outlet`), so the list keeps its search text, scroll and rows while the panel is open. Closing keeps the URL filters and returns focus to the row. Rejected: a sibling route, which remounts the list and moves focus to its title.
+- **Detail over home:** a recent movement opens the same panel over home, with `?movimiento=<id>` in the URL (Back closes it, a reload keeps it) and focus back on its row when it closes; the user stays on home. Rejected: navigating to `/movimientos/:id`, which takes the user to another screen just to look at one movement.
+- **`transferId` is display only:** it is shown as "Comprobante" and parsed leniently (missing → `null`, the receipt is hidden), because no money rule reads it; the guards keep rejecting what money rules cannot trust.
+- **Page past the end:** the empty states depend on `total`, not on the rows of the page, and `?page=99` moves to the last page instead of claiming "Aún no tienes movimientos".
+- **New account inline on home:** "Nueva cuenta" in "Saldos por cuenta" opens the form in place (name, currency, "La moneda no se puede cambiar después"); no new route. Rejected: a `/cuentas/nueva` page and a modal, more screens or focus handling for a two-field form.
+- **Success toast after a new movement:** "Gasto registrado · −$ X en Cuenta Pesos. Nuevo disponible: $ Y." The new available comes from `availableAfter` in the domain; with an unknown available that part is left out.
+- **Saved edits are confirmed inside the panel:** a modal `<dialog>` puts the page outside it (toast region included) behind the top layer and makes it inert, so a toast would be hidden and not announced. The edit form shows a success status ("Cambios guardados") until the next change. Toasts stay for screens without an open dialog.
+- **Unknown outcome after a network error:** creating a movement or an account that fails without a response may have been recorded anyway (mutations never retry and the API has no idempotency key). The form keeps its values, refetches balances and movements, and asks the user to check Movimientos (or the balances) before trying again, as `DECISIONS.md` asks for transfers.
+- **Left out:** the handoff's `StatusTimeline` for a pending transfer in the detail. It is not in this change's specs; the badge "Pendiente" and the row note already say the money is in progress.
 
 ## Risks / Trade-offs
 
