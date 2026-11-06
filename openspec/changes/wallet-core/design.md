@@ -30,7 +30,7 @@ Greenfield React app over a mock API we cannot change. The API's verified quirks
 | `categories.ts` | category ids, Spanish labels, `selectableCategories` (excludes `transfer`), `categoryLabel(id)` |
 | `transferLabel.ts` | `transferLabel(movement, ownAccounts) → "Transferencia a/desde …"` |
 
-`Result` is a small discriminated union, defined in `money.ts` until a second module needs it; no exceptions for expected validation outcomes.
+`Result` is a small discriminated union, in `result.ts` (shared by amount parsing and account validation); no exceptions for expected validation outcomes.
 
 ### Money details
 - **Fail closed in the domain:** an unknown available is a value (`'unknown'`), not a hook decision. `accountFigures` produces it when pending transfers fail to load, and `canDebit` blocks on it.
