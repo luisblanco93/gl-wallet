@@ -1,0 +1,86 @@
+schema: spec-driven
+
+context: |
+  Product: personal fintech wallet (Greelow Senior Frontend take-home).
+  Users see balances, browse/filter movements, register income/expenses, and
+  transfer money between own accounts or to another user's account (P2P).
+  Guiding principle: the user must always understand the real state of their
+  money (available vs. in progress vs. settled).
+
+  Tech stack: React 19 + TypeScript (strict), Vite, TanStack Query (server
+  state), React context for session, Tailwind CSS v4, Vitest + Testing Library.
+  Package manager: npm.
+
+  Architecture (enforced by ESLint no-restricted-imports):
+    src/domain/   pure TypeScript business rules. MUST NOT import react,
+                  @tanstack/*, src/api or src/features.
+    src/api/      HTTP client, DTO mapping, error normalization.
+    src/features/ per-capability hooks + components (call domain, hold no rules).
+    src/shared/   generic UI.
+    src/app/      providers, router, layout.
+
+  Money: amounts handled internally as integer minor units (cents); max 2
+  decimals on input. Never sum balances across currencies without labelling
+  the result as an estimate.
+
+  Backend: provided mock REST API (Express + SQLite), treated as a black box
+  and NOT part of this repo. Base URL from VITE_API_URL
+  (default http://localhost:3000). Verified behaviours that specs must account
+  for (evidence summarized in DECISIONS.md, section 4):
+    - Balance counts only `completed` rows; pending outgoing transfers are not
+      deducted, so double-spend is possible. Client computes available balance.
+    - POST /transactions (expense) does not check funds; balance can go negative.
+    - Transfers start `pending`, settle to `completed` after ~1.5s via an
+      in-memory timer; a server restart leaves them `pending` forever.
+      Nothing ever produces `failed`.
+    - Errors: JSON `{errors:[{field,message}]}` (field validation) or
+      `{error}` (others). Malformed JSON -> 400 HTML with stack trace;
+      unknown route -> 404 HTML. Never display raw response bodies.
+    - Cross-currency transfers are not converted; same amount on both sides.
+    - P2P: no recipient lookup; destination is a raw account id, and its
+      owner/currency are not visible to the sender.
+    - Only category/description are editable; amount is immutable; transfers
+      are not editable (400).
+
+  Product decisions (trade-offs in DECISIONS.md):
+    - Cross-currency transfers are BLOCKED (other-currency own accounts
+          shown disabled with reason). An estimated equivalence from an
+          external FX API is shown, labelled as estimate; home shows an
+          "estimated total in ARS" with source and date. FX provider:
+          dolarapi.com official rate (/v1/dolares/oficial, /v1/cotizaciones/eur;
+          USD<->EUR crossed via ARS), cached for minutes. FX failure hides the
+          estimate, never breaks the app.
+    - P2P destination currency is unknown before sending: review step warns
+          it must match; if the POST response reveals a different currency,
+          tell the user. Documented residual risk.
+    - One debit rule for transfers AND expenses: amount <= available
+          (balance - pending outgoing transfers). Validate client-side and
+          still handle server 422 (show refreshed available, refetch balances).
+    - Poll GET /transfers/:id every 1s; on completed invalidate accounts and
+          transactions; after 10s still pending show "taking longer than
+          usual" and stop. Movements list auto-refreshes while it has pending
+          rows, same cap. Policy is a pure domain function.
+    - Submit disabled while a mutation is in flight; no concurrent submits.
+    - P2P by raw account id (non-empty, not the source); review warns it is
+          irreversible; 404 -> "destination account does not exist".
+    - Amounts as integer cents internally; max 2 decimals on input.
+    - Own-account transfers: one row per side, labelled to/from; no grouping.
+    - Minimal account creation (name + currency, POST /accounts) so an
+          own-account transfer is testable with seed data. No account editing.
+
+  Scope: two changes only: `wallet-core` (session, accounts incl. minimal
+  creation, movements list/filter/pagination, create/edit movement) and
+  `transfers` (transfer flow, funds rule, currency rule, status polling).
+
+  Conventions: conventional commits; TDD for domain logic (scenarios map to
+  Vitest tests); user-facing copy in Spanish, es-AR number/date formatting
+  for amounts.
+
+rules:
+  proposal:
+    - Keep proposals short; state the product decision and the rejected alternatives
+    - Include a "Non-goals" section
+  design:
+    - When a decision resolves one of the brief's ambiguities, state it so it can be copied into DECISIONS.md
+  specs:
+    - Every requirement touching money states its behaviour for pending, failure and error cases
