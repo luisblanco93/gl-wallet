@@ -11,23 +11,20 @@
  * - list: { transactions: transaction[], pagination: { page, pageSize, total } }
  */
 import { toCents } from '@/domain/money'
-import type {
-  Account,
-  Currency,
-  Movement,
-  MovementStatus,
-  MovementType,
-  TransferDirection,
-  User,
+import {
+  CURRENCIES,
+  MOVEMENT_STATUSES,
+  MOVEMENT_TYPES,
+  TRANSFER_DIRECTIONS,
+  type Account,
+  type Movement,
+  type MovementType,
+  type User,
 } from '@/domain/types'
 import { untrustworthyResponse } from './errors'
 
 type JsonObject = Readonly<Record<string, unknown>>
 
-const CURRENCIES: readonly Currency[] = ['ARS', 'USD', 'EUR']
-const MOVEMENT_TYPES: readonly MovementType[] = ['income', 'expense', 'transfer']
-const DIRECTIONS: readonly TransferDirection[] = ['in', 'out']
-const STATUSES: readonly MovementStatus[] = ['pending', 'completed', 'failed']
 /** The API stores `category || 'other'`, so a missing category means `other`. */
 const DEFAULT_CATEGORY = 'other'
 
@@ -104,7 +101,7 @@ export function parseAccount(value: unknown): Account {
 function parseTransferSide(movement: JsonObject, type: MovementType) {
   if (type !== 'transfer') return { direction: null, counterpartAccountId: null }
   return {
-    direction: asOneOf(movement.direction, DIRECTIONS, 'transaction.direction'),
+    direction: asOneOf(movement.direction, TRANSFER_DIRECTIONS, 'transaction.direction'),
     counterpartAccountId: asString(movement.counterpartAccountId, 'transaction.counterpartAccountId'),
   }
 }
@@ -124,7 +121,7 @@ export function parseMovement(value: unknown): Movement {
     currency: asOneOf(movement.currency, CURRENCIES, 'transaction.currency'),
     category: asOptionalString(movement.category, DEFAULT_CATEGORY, 'transaction.category'),
     description: asOptionalString(movement.description, '', 'transaction.description'),
-    status: asOneOf(movement.status, STATUSES, 'transaction.status'),
+    status: asOneOf(movement.status, MOVEMENT_STATUSES, 'transaction.status'),
     createdAt: asString(movement.createdAt, 'transaction.createdAt'),
   }
 }
