@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { TRANSFER_POLL_INTERVAL_MS, listShouldRefresh } from '@/domain/transferStatus'
 import type { Movement } from '@/domain/types'
 import { useWalletApi } from '@/features/walletApi'
 import { hasFilters, pageCount, visibleRange, type MovementListState, type VisibleRange } from './filters'
@@ -31,6 +32,13 @@ export function useMovements(state: MovementListState, pageSize: number = MOVEME
     queryKey: [...MOVEMENTS_KEY, state, pageSize],
     queryFn: () => api.listMovements({ ...state, pageSize }),
     placeholderData: keepPreviousData,
+    // A pending row settles without notice: refresh while one is newer than the cap, then stop.
+    refetchInterval: ({ state }) => {
+      const pendingCreatedAts = (state.data?.items ?? [])
+        .filter((movement) => movement.status === 'pending')
+        .map((movement) => movement.createdAt)
+      return listShouldRefresh(pendingCreatedAts, Date.now()) ? TRANSFER_POLL_INTERVAL_MS : false
+    },
   })
 
   if (query.isPending) return { status: 'loading' }
