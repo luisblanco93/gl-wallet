@@ -1,12 +1,12 @@
 # Spec Delta
 
 ## Purpose
-Show each account's money truthfully (settled vs. available vs. in progress), enforce one debit rule, and allow creating an account.
+Show each account's available and in-progress money truthfully, enforce one debit rule, and allow creating an account.
 
 ## ADDED Requirements
 
 ### Requirement: Account balances
-The system SHALL list the user's accounts with three figures in the account's currency: the API `balance` (settled), **in progress** (sum of the account's outgoing transfers with status `pending`) and **available** (`balance − in progress`). Pending outgoing transfers SHALL be read from `GET /transactions?type=transfer&status=pending` and filtered by `direction = out` and account.
+The system SHALL list the user's accounts with **available** (`balance − in progress`) and, when nonzero, **in progress** (sum of the account's outgoing transfers with status `pending`), in the account's currency. The API `balance` (settled) SHALL remain an internal input to the calculation, without a separate settled-balance line on the card. Pending outgoing transfers SHALL be read from `GET /transactions?type=transfer&status=pending` and filtered by `direction = out` and account.
 
 #### Scenario: No pending transfers
 - **WHEN** Cuenta Pesos has balance $ 855.000 and no pending outgoing transfers
@@ -18,7 +18,7 @@ The system SHALL list the user's accounts with three figures in the account's cu
 
 #### Scenario: Pending transfers cannot be loaded
 - **WHEN** the accounts load but the pending-transfers request fails
-- **THEN** the balance is shown, available is shown as unknown with a retry action, and debits from that account are blocked until it is known
+- **THEN** available is shown as unknown with a retry action, no settled-balance line is shown, and debits from that account are blocked until available is known
 
 #### Scenario: Loading and errors
 - **WHEN** the accounts request is in flight or fails

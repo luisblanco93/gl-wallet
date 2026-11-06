@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import type { MovementPage } from '@/api/endpoints'
@@ -60,6 +60,7 @@ describe('HomePage', () => {
     })
     const pesos = await screen.findByRole('article', { name: 'Cuenta Pesos' })
     expect(await within(pesos).findByText(`$${NBSP}835.000,00`)).toBeInTheDocument()
+    expect(within(pesos).queryByText(/^Saldo acreditado:/)).not.toBeInTheDocument()
     expect(within(pesos).getByText(`En proceso: ${MINUS}$${NBSP}20.000,00`)).toBeInTheDocument()
     expect(within(pesos).getByText('Ya está descontado del disponible.')).toBeInTheDocument()
     const dollars = screen.getByRole('article', { name: 'Cuenta Dolares' })
@@ -106,6 +107,27 @@ describe('HomePage', () => {
     expect(await screen.findByText('Transferencia a acc-4')).toBeInTheDocument()
     expect(api.listMovements).toHaveBeenCalledWith({ page: 1, pageSize: 5 })
     expect(screen.getByRole('link', { name: /Ver todos/ })).toHaveAttribute('href', '/movimientos')
+  })
+
+  it('keeps recent movements loading until accounts resolve with human-readable names', async () => {
+    let resolveAccounts!: (accounts: Account[]) => void
+    const accounts = new Promise<Account[]>((resolve) => { resolveAccounts = resolve })
+    const { api, queryClient } = setup((fake) => {
+      fake.listAccounts.mockReturnValue(accounts)
+      fake.listPendingTransfers.mockResolvedValue([])
+      fake.listMovements.mockResolvedValue(page([PENDING_OUT]))
+    })
+    await waitFor(() => expect(queryClient.isFetching()).toBe(1))
+    expect(api.listMovements).toHaveBeenCalledWith({ page: 1, pageSize: 5 })
+    const recent = screen.getByRole('region', { name: 'Últimos movimientos' })
+    expect(within(recent).getByText('Cargando movimientos…')).toBeInTheDocument()
+    expect(within(recent).queryByRole('button', { name: /^Transferencia a acc-4\./ })).not.toBeInTheDocument()
+    expect(within(recent).queryByText(/acc-1/)).not.toBeInTheDocument()
+
+    await act(async () => { resolveAccounts([PESOS]) })
+    const row = await within(recent).findByRole('button', { name: /^Transferencia a acc-4\./ })
+    expect(within(row).getByText('Cuenta Pesos → acc-4')).toBeInTheDocument()
+    expect(within(recent).queryByText('Cargando movimientos…')).not.toBeInTheDocument()
   })
 
   it('opens a recent movement over home and gives focus back to its row on close', async () => {

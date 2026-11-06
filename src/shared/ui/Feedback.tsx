@@ -105,7 +105,7 @@ export function Skeleton({ className }: { className?: string }) {
     <span
       aria-hidden="true"
       className={cx(
-        'block rounded-pill bg-[linear-gradient(90deg,#d8cab0,#e8dec9_45%,#d8cab0_90%)] bg-[length:220%_100%] animate-[shimmer_1.5s_ease-in-out_infinite] motion-reduce:animate-none',
+        'block rounded-pill bg-[linear-gradient(90deg,var(--color-neutral-300),var(--color-neutral-200)_45%,var(--color-neutral-300)_90%)] bg-[length:220%_100%] animate-[shimmer_1.5s_ease-in-out_infinite] motion-reduce:animate-none',
         className,
       )}
     />
@@ -133,7 +133,7 @@ export function Toast({ kind, title, description, onClose }: ToastMessage & { on
       <span
         className={cx(
           'grid size-7 shrink-0 place-items-center rounded-full',
-          kind === 'success' ? 'bg-[#ccdbb2] text-[#272e1b]' : 'bg-error-bg text-error-strong',
+          kind === 'success' ? 'bg-success-bg text-success' : 'bg-error-bg text-error-strong',
         )}
       >
         <Icon as={kind === 'success' ? Check : X} size={16} strokeWidth={3.25} />

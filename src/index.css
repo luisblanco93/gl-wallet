@@ -1,14 +1,12 @@
-/* Greelow — tokens para Tailwind CSS v4.
-   Base visual: sistema Organic (crema/arena, terracota, salvia). Contraste AA verificado
-   contra --color-bg (#f5ead8) salvo donde se indica otro fondo. */
+/* Greelow — Tailwind CSS v4 tokens. Default: Bosque y marfil; alternative: Azul y porcelana. */
 /* Runtime request to Google Fonts (see wallet-core design.md, "UI"). It must precede the Tailwind import. */
-@import url("https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Manrope:wght@400;600;700&family=Sora:wght@600&family=Source+Sans+3:wght@400;600;700&display=swap");
 @import "tailwindcss";
 
 @theme {
   /* — Tipografía — */
-  --font-display: "Caprasimo", ui-serif, Georgia, serif; /* solo títulos de página (h1) */
-  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif; /* UI, montos (tabular-nums) */
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
 
   --text-display: 2.5rem;      --text-display--line-height: 1.12;  /* 40px h1 desktop */
   --text-display-sm: 1.875rem; --text-display-sm--line-height: 1.15; /* 30px h1 mobile */
@@ -23,34 +21,34 @@
   --text-amount: 1rem;         --text-amount--line-height: 1.3;  --text-amount--font-weight: 700;
 
   /* — Base — */
-  --color-bg: #f5ead8;          /* fondo de página */
-  --color-surface: #ebddc5;     /* tarjetas, inputs */
-  --color-paper: #f9f4ed;       /* listas, paneles elevados */
-  --color-ink: #201e1d;         /* texto principal · 13.9:1 */
-  --color-ink-soft: #474238;    /* texto secundario fuerte · 8.4:1 */
-  --color-ink-muted: #645c50;   /* metadatos · 5.5:1 (4.9:1 sobre surface) */
-  --color-line: #201e1d29;      /* divisores (16% ink) */
-  --color-neutral-200: #eee7db;
-  --color-neutral-300: #dcd3c4;
-  --color-neutral-400: #c0b6a5;
-  --color-neutral-500: #a19786;
-  --color-neutral-600: #82796a; /* bordes de control no seleccionados · 3.6:1 */
+  --color-bg: #f6f4ec;
+  --color-surface: #e6ebdd;
+  --color-paper: #fffdf8;
+  --color-ink: #1c2922;
+  --color-ink-soft: #394d40;
+  --color-ink-muted: #526354;
+  --color-line: #1c292229;
+  --color-neutral-200: #edf0e8;
+  --color-neutral-300: #ccd6c8;
+  --color-neutral-400: #adbba7;
+  --color-neutral-500: #899b84;
+  --color-neutral-600: #697c64;
 
   /* — Acción — */
-  --color-primary: #8c491a;         /* botón primario; texto bg encima · 5.7:1 */
-  --color-primary-hover: #643312;
-  --color-primary-active: #402310;
-  --color-primary-accent: #b2622d;  /* bordes de selección y chips (no texto) · 3.8:1 */
-  --color-primary-tint: #fff2eb;    /* opción seleccionada, chips */
-  --color-on-primary: #f5ead8;
-  --color-link: #8c491a;            /* enlaces y acciones ghost · 5.7:1 */
-  --color-focus: #c67139;           /* anillo de foco 2px · 3.0:1 (no texto) */
-  --color-selected: #201e1d;        /* pestaña/nav activa (fondo ink, texto bg) */
+  --color-primary: #245a43;
+  --color-primary-hover: #194632;
+  --color-primary-active: #103323;
+  --color-primary-accent: #3e7358;
+  --color-primary-tint: #e8f1e9;
+  --color-on-primary: #fffdf8;
+  --color-link: #245a43;
+  --color-focus: #3e7358;
+  --color-selected: #1c2922;
 
   /* — Semánticos de dinero (texto sobre su fondo, todos ≥ 4.5:1) — */
-  --color-income: #56633f;          /* montos positivos · 5.4:1 */
-  --color-expense: #201e1d;         /* montos negativos: tinta, el signo “−” comunica */
-  --color-available: #3d472b;       /* “Disponible” · 8.3:1 */
+  --color-income: #346143;
+  --color-expense: #1c2922;
+  --color-available: #245039;
 
   --color-pending: #4a3b78;         /* En proceso / Pendiente · 7.9:1 sobre pending-bg */
   --color-pending-bg: #ece6f7;
@@ -70,9 +68,9 @@
   --color-warning-bg: #fbefc9;
   --color-warning-border: #e3bf5f;
 
-  --color-info-bg: #f9f4ed;
-  --color-info-border: #dcd3c4;
-  --color-help-bg: #f0fae1;         /* ayudas contextuales (ID de cuenta) */
+  --color-info-bg: #fffdf8;
+  --color-info-border: #ccd6c8;
+  --color-help-bg: #e8f1e9;
 
   /* — Espaciado — densidad Organic 1.10× (p-1 = 4.4px, p-4 = 17.6px) — */
   --spacing: 0.275rem;
@@ -90,15 +88,48 @@
   --shadow-lg: 0 12px 32px #2e2b2538;
 
   /* — Layout — */
-  --breakpoint-md: 47.5rem; /* 760px: barra inferior ↔ header con navegación */
+  --breakpoint-md: 47.5rem; /* 760px: content layout; shell navigation switches at lg (1024px). */
   --container-content: 70rem; /* 1120px */
+}
+
+:root[data-theme="azul"] {
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --color-bg: #f2f5fa;
+  --color-surface: #e5ecf7;
+  --color-paper: #fff;
+  --color-ink: #19263d;
+  --color-ink-soft: #344761;
+  --color-ink-muted: #50627d;
+  --color-line: #19263d29;
+  --color-neutral-200: #edf1f8;
+  --color-neutral-300: #cad6e7;
+  --color-neutral-400: #a8bad3;
+  --color-neutral-500: #8199ba;
+  --color-neutral-600: #617a9d;
+  --color-primary: #2854a6;
+  --color-primary-hover: #1d4288;
+  --color-primary-active: #153267;
+  --color-primary-accent: #416db6;
+  --color-primary-tint: #e7effc;
+  --color-on-primary: #fff;
+  --color-link: #2854a6;
+  --color-focus: #416db6;
+  --color-selected: #19263d;
+  --color-income: #286044;
+  --color-expense: #19263d;
+  --color-available: #254f44;
+  --color-info-bg: #fff;
+  --color-info-border: #cad6e7;
+  --color-help-bg: #e7effc;
 }
 
 @layer base {
   html { color-scheme: light; }
   body { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-sans); font-size: var(--text-body); }
   :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
-  ::selection { background: #c671394d; }
+  .font-display { font-weight: 600; }
+  ::selection { background: var(--color-primary-tint); color: var(--color-ink); }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
   }

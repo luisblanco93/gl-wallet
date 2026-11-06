@@ -5,6 +5,7 @@ import { ToastRegion } from '@/features/toast/ToastProvider'
 import { Brand } from '@/shared/ui/Brand'
 import { cx } from '@/shared/ui/cx'
 import { Icon } from '@/shared/ui/Icon'
+import { ThemeSelect } from './ThemeSelect'
 
 const NAV: readonly { to: string; label: string; icon: LucideIcon; end?: boolean }[] = [
   { to: '/', label: 'Inicio', icon: House, end: true },
@@ -33,9 +34,9 @@ export function AppShell() {
       <a href="#main" className="sr-only-focusable absolute left-4 top-2 z-50 rounded-pill bg-ink px-4 py-2 text-bg">
         Saltar al contenido
       </a>
-      <header className="flex items-center gap-2.5 border-b border-line py-2 pl-4 pr-2 md:gap-7 md:px-8 md:py-3">
+      <header className="flex items-center gap-2.5 border-b border-line py-2 pl-4 pr-2 lg:gap-7 lg:px-8 lg:py-3">
         <Brand />
-        <nav aria-label="Principal" className="hidden md:block">
+        <nav aria-label="Principal" className="hidden lg:block">
           <ul className="flex gap-1">
             {NAV.map((item) => (
               <li key={item.to}>
@@ -56,21 +57,22 @@ export function AppShell() {
             ))}
           </ul>
         </nav>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2 lg:gap-3">
+          <ThemeSelect />
           <span
             aria-hidden="true"
-            className="hidden size-9 place-items-center rounded-full bg-[#ccdbb2] text-[0.8125rem] font-bold text-[#272e1b] md:grid"
+            className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-tint text-[0.8125rem] font-bold text-primary-active lg:size-9"
           >
             {initialsOf(user?.name ?? '')}
           </span>
-          <span className="flex flex-col leading-tight">
+          <span className="sr-only xl:not-sr-only xl:flex xl:flex-col xl:leading-tight">
             <span className="text-sm font-bold">{user?.name}</span>
-            <span className="hidden text-caption text-ink-muted md:block">{user?.email}</span>
+            <span className="hidden text-caption text-ink-muted lg:block">{user?.email}</span>
           </span>
           <button
             type="button"
             onClick={logout}
-            className="hidden min-h-10 items-center gap-2 whitespace-nowrap rounded-pill border-[1.5px] border-line px-4 text-sm font-semibold hover:bg-ink/7 md:inline-flex"
+            className="hidden min-h-10 items-center gap-2 whitespace-nowrap rounded-pill border-[1.5px] border-line px-4 text-sm font-semibold hover:bg-ink/7 lg:inline-flex"
           >
             <Icon as={LogOut} size={16} />
             Cerrar sesión
@@ -79,7 +81,7 @@ export function AppShell() {
             type="button"
             onClick={logout}
             aria-label="Cerrar sesión"
-            className="grid size-11 place-items-center rounded-full hover:bg-ink/8 md:hidden"
+            className="grid size-11 place-items-center rounded-full hover:bg-ink/8 lg:hidden"
           >
             <Icon as={LogOut} size={20} />
           </button>
@@ -95,7 +97,7 @@ export function AppShell() {
 
       <nav
         aria-label="Principal"
-        className="sticky bottom-0 border-t border-line bg-paper px-2 pb-[max(6px,env(safe-area-inset-bottom))] pt-1.5 md:hidden"
+        className="sticky bottom-0 border-t border-line bg-paper px-2 pb-[max(6px,env(safe-area-inset-bottom))] pt-1.5 lg:hidden"
       >
         <ul className="grid grid-cols-3 gap-1">
           {NAV.map((item) => (
@@ -106,7 +108,7 @@ export function AppShell() {
                 className={({ isActive }) =>
                   cx(
                     'flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-[18px] text-xs',
-                    isActive ? 'bg-[#e1eecc] font-bold text-[#272e1b]' : 'font-semibold text-ink-soft hover:bg-ink/6',
+                    isActive ? 'bg-primary-tint font-bold text-primary-active' : 'font-semibold text-ink-soft hover:bg-ink/6',
                   )
                 }
               >
