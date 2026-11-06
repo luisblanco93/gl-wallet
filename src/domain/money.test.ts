@@ -35,12 +35,26 @@ describe('parseAmount', () => {
     expect(parseAmount('0,01')).toEqual({ ok: true, value: 1 })
   })
 
-  it('fails with tooManyDecimals for more than two decimals', () => {
-    expect(parseAmount('10.015')).toEqual({ ok: false, error: 'tooManyDecimals' })
+  it('reads a dot that groups digits in threes as the thousands separator (es-AR)', () => {
+    expect(parseAmount('1.234,56')).toEqual({ ok: true, value: 123456 })
+    expect(parseAmount('1.500')).toEqual({ ok: true, value: 150000 })
+    expect(parseAmount('10.015')).toEqual({ ok: true, value: 1001500 })
+    expect(parseAmount('1.234.567,89')).toEqual({ ok: true, value: 123456789 })
   })
 
-  it('reads a thousands dot as decimals (known limitation, no thousands separators)', () => {
-    expect(parseAmount('1.234')).toEqual({ ok: false, error: 'tooManyDecimals' })
+  it('reads any other dot as the decimal separator', () => {
+    expect(parseAmount('1.23')).toEqual({ ok: true, value: 123 })
+    expect(parseAmount('0.50')).toEqual({ ok: true, value: 50 })
+  })
+
+  it('fails with tooManyDecimals for more than two decimals', () => {
+    expect(parseAmount('10,015')).toEqual({ ok: false, error: 'tooManyDecimals' })
+    expect(parseAmount('1234.567')).toEqual({ ok: false, error: 'tooManyDecimals' })
+    expect(parseAmount('1.234,567')).toEqual({ ok: false, error: 'tooManyDecimals' })
+  })
+
+  it('does not treat a group starting with zero as thousands', () => {
+    expect(parseAmount('0.001')).toEqual({ ok: false, error: 'tooManyDecimals' })
   })
 
   it('fails with empty for empty or blank input', () => {
@@ -54,7 +68,8 @@ describe('parseAmount', () => {
   })
 
   it('fails with invalid for negative or non-numeric input', () => {
-    for (const input of ['-5', 'abc', '1,2,3', '1.234,56', '1,', ',5', '1e3', '$ 10']) {
+    const inputs = ['-5', 'abc', '1,2,3', '1,', ',5', '1e3', '$ 10', '1.234.56', '12.34,5', '1,234.56', '1.2.3']
+    for (const input of inputs) {
       expect(parseAmount(input)).toEqual({ ok: false, error: 'invalid' })
     }
   })
