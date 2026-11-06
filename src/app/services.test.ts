@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createAppServices } from './services'
-import type { SessionStorageLike } from './session'
+import type { SessionStorageLike } from '@/features/session/session'
 
 /** Opaque session value issued by the mock API at login. */
 const DEMO_SESSION_ID = 'session-of-demo-user'

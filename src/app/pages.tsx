@@ -1,7 +1,7 @@
 // Placeholder screens so routing and the session can be exercised end to end.
 // They are replaced by the real screens when the design arrives (wallet-core tasks 5.x).
 import { Navigate } from 'react-router'
-import { useSession } from './useSession'
+import { useSession } from '@/features/session/useSession'
 
 export function LoginPage() {
   const { state } = useSession()

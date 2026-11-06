@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import { appRoutes } from './routes'
-import { createSessionStore, type SessionStorageLike } from './session'
-import { SessionProvider } from './SessionProvider'
+import { createSessionStore, type SessionStorageLike } from '@/features/session/session'
+import { SessionProvider } from '@/features/session/SessionProvider'
 
 /** Opaque session value issued by the mock API at login. */
 const DEMO_SESSION_ID = 'session-of-demo-user'

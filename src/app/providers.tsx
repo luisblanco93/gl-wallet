@@ -2,7 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { config } from '@/config'
 import { createAppServices } from './services'
-import { SessionProvider } from './SessionProvider'
+import { SessionProvider } from '@/features/session/SessionProvider'
 
 const services = createAppServices({
   apiUrl: config.apiUrl,

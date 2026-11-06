@@ -2,7 +2,7 @@ import type { QueryClient } from '@tanstack/react-query'
 import { createApiClient } from '@/api/client'
 import { createWalletApi, type WalletApi } from '@/api/endpoints'
 import { createQueryClient } from './queryClient'
-import { createSessionStore, type SessionStorageLike, type SessionStore } from './session'
+import { createSessionStore, type SessionStorageLike, type SessionStore } from '@/features/session/session'
 
 export type AppServices = {
   readonly queryClient: QueryClient
