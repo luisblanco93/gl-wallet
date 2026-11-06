@@ -18,6 +18,11 @@ describe('nextPoll', () => {
     expect(nextPoll('pending', Number.NaN)).toEqual({ poll: false, outcome: 'delayed' })
   })
 
+  it('tolerates a small clock skew but stops when the creation time is far in the future', () => {
+    expect(nextPoll('pending', -500)).toEqual({ poll: true, inMs: TRANSFER_POLL_INTERVAL_MS })
+    expect(nextPoll('pending', -3_600_000)).toEqual({ poll: false, outcome: 'delayed' })
+  })
+
   it('stops as failed when the API reports a failed transfer', () => {
     expect(nextPoll('failed', 1500)).toEqual({ poll: false, outcome: 'failed' })
   })
@@ -33,5 +38,10 @@ describe('listShouldRefresh', () => {
   it('stops when every pending row is older than 10 s, or there are none', () => {
     expect(listShouldRefresh(['2026-11-06T15:00:05.000Z'], now)).toBe(false)
     expect(listShouldRefresh([], now)).toBe(false)
+  })
+
+  it('stops when the newest pending row is dated far in the future', () => {
+    expect(listShouldRefresh(['2026-11-06T16:00:20.000Z'], now)).toBe(false)
+    expect(listShouldRefresh(['9999-12-31T00:00:00.000Z'], now)).toBe(false)
   })
 })
