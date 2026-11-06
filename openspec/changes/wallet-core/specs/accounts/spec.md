@@ -14,7 +14,7 @@ The system SHALL list the user's accounts with three figures in the account's cu
 
 #### Scenario: A transfer is pending
 - **WHEN** Cuenta de Ana has balance $ 720.000 and a pending outgoing transfer of $ 500.000
-- **THEN** available is $ 220.000 and "En proceso: −$ 500.000" is shown
+- **THEN** available is $ 220.000 and "En proceso: −$ 500.000,00" is shown
 
 #### Scenario: Pending transfers cannot be loaded
 - **WHEN** the accounts load but the pending-transfers request fails

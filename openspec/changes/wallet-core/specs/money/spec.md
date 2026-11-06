@@ -6,14 +6,22 @@ Represent, parse and display money without floating-point errors or misleading c
 ## ADDED Requirements
 
 ### Requirement: Amount input parsing
-The system SHALL convert a user-entered amount into an integer number of cents, accepting either `,` or `.` as decimal separator, at most 2 decimals, and a minimum of 0.01. Invalid input SHALL produce a validation error, never a number.
+The system SHALL convert a user-entered amount into an integer number of cents following the es-AR convention: `,` is the decimal separator and `.` is the thousands separator when it groups digits in threes (the first group starting with a non-zero digit). A `.` that does not form a thousands group SHALL be read as the decimal separator. Amounts SHALL have at most 2 decimals and a minimum of 0.01. Invalid input SHALL produce a validation error, never a number.
 
 #### Scenario: Valid amount with comma decimal
 - **WHEN** the user enters `1234,56`
 - **THEN** the parsed value is `123456` cents
 
+#### Scenario: Thousands separator
+- **WHEN** the user enters `1.234,56` or `1.500`
+- **THEN** the parsed values are `123456` and `150000` cents
+
+#### Scenario: Dot as decimal separator
+- **WHEN** the user enters `1234.56`
+- **THEN** the parsed value is `123456` cents
+
 #### Scenario: More than two decimals
-- **WHEN** the user enters `10.015`
+- **WHEN** the user enters `10,015` or `1234.567`
 - **THEN** parsing fails with "maximum 2 decimals" and no amount is produced
 
 #### Scenario: Empty, zero, negative or non-numeric input

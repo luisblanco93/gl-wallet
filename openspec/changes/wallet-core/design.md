@@ -34,7 +34,8 @@ Greenfield React app over a mock API we cannot change. The API's verified quirks
 
 ### Money details
 - **Fail closed in the domain:** an unknown available is a value (`'unknown'`), not a hook decision. `accountFigures` produces it when pending transfers fail to load, and `canDebit` blocks on it.
-- **Parsing from text:** `parseAmount` validates the string and builds cents from its integer and decimal parts; it never multiplies a float. Error kinds: `empty`, `invalid` (negative, non-numeric, several separators), `tooManyDecimals`, `belowMinimum`, `tooLarge` (not a safe integer).
+- **Parsing from text:** `parseAmount` validates the string and builds cents from its integer and decimal parts; it never multiplies a float. Error kinds: `empty`, `invalid` (negative, non-numeric, malformed separators), `tooManyDecimals`, `belowMinimum`, `tooLarge` (not a safe integer).
+- **es-AR separators:** users in Argentina write `1.500` for fifteen hundred, so a `.` that groups digits in threes (`1.234`, `1.234.567,89`) is a thousands separator and `,` is the decimal one. Any other `.` is read as decimal, so `1234.56` and `0.50` still work. A first group starting with `0` is not a thousands group (`0.001` fails with too many decimals instead of becoming 1). Rejected: dot always decimal (`1.234` failed for every es-AR user) and comma-only decimal (rejects `1234.56`, which the spec accepted).
 - **Formatting without `Intl` currency style:** in Node 24 it prints `EUR 1,00` and an ASCII hyphen, and ICU output varies between engines. `formatMoney` uses `Intl` only for thousands grouping and adds its own symbols (`$`, `US$`, `€`), the `−` sign (U+2212) and a non-breaking space so the symbol never wraps away from the number.
 - **Reading API floats:** `toCents` rounds after `toPrecision(15)` to drop binary noise (`1.005 → 101`) and never returns `-0`.
 - **Signed amounts:** `signedAmount` decides the sign of a row (expense or outgoing transfer → negative), so components never derive it.
@@ -60,4 +61,4 @@ Debounced 300 ms in the hook; filters and page live in the URL query string so a
 - **Pending transfers beyond 50**: the API caps `pageSize` at 50. Available is computed from one page of pending outgoing transfers. Since transfers settle in ~1.5 s, more than 50 pending at once is unrealistic; documented, not handled.
 - **Stale available between fetch and submit**: the client check can pass while the server rejects with 422. Handled by the `insufficientFunds` error path (accounts refetch + message).
 - **Server balance is a float**: converted to cents on read with rounding; display never shows float artifacts.
-- **No thousands separators in amount input**: `1.234` reads as 1 with 3 decimals and fails with "maximum 2 decimals" instead of being guessed as 1234. The spec only requires `,` or `.` as decimal separator; failing is safer than guessing with money.
+- **`10.015` means ten thousand fifteen**: under the es-AR rule a dot followed by three digits is a thousands group, so it can never be read as three decimals. That matches how users in Argentina write amounts.
