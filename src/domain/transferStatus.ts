@@ -12,14 +12,21 @@ export type PollDecision =
   | { readonly poll: false; readonly outcome: TrackingOutcome }
 
 /**
+ * The cap bounds the age on both sides: a creation time far in the future (server clock ahead,
+ * or untrustworthy data) stops polling as well. An unreadable time (NaN) is never within it.
+ */
+function isWithinPollWindow(ageMs: number): boolean {
+  return Math.abs(ageMs) < TRANSFER_POLL_MAX_MS
+}
+
+/**
  * Whether to ask for the transfer status again. `status` is the last one the client saw,
  * so a failed status request before the cap simply keeps polling.
  */
 export function nextPoll(status: MovementStatus, elapsedMs: number): PollDecision {
   if (status === 'completed') return { poll: false, outcome: 'completed' }
   if (status === 'failed') return { poll: false, outcome: 'failed' }
-  // Written as "not below the cap" so an unreadable time (NaN) stops instead of polling forever.
-  if (!(elapsedMs < TRANSFER_POLL_MAX_MS)) return { poll: false, outcome: 'delayed' }
+  if (!isWithinPollWindow(elapsedMs)) return { poll: false, outcome: 'delayed' }
   return { poll: true, inMs: TRANSFER_POLL_INTERVAL_MS }
 }
 
@@ -28,6 +35,7 @@ export function nextPoll(status: MovementStatus, elapsedMs: number): PollDecisio
  * the newest one, so a stuck `pending` row cannot cause endless polling. Unparseable dates never refresh.
  */
 export function listShouldRefresh(pendingCreatedAts: readonly string[], nowMs: number): boolean {
+  if (pendingCreatedAts.length === 0) return false
   const newest = Math.max(...pendingCreatedAts.map((createdAt) => Date.parse(createdAt)))
-  return nowMs - newest < TRANSFER_POLL_MAX_MS
+  return isWithinPollWindow(nowMs - newest)
 }
