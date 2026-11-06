@@ -1,13 +1,15 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { createApiClient } from '@/api/client'
-import { createWalletApi, type WalletApi } from '@/api/endpoints'
+import { createWalletApi } from '@/api/endpoints'
+import { createFxApi } from '@/api/fx'
 import { createQueryClient } from './queryClient'
 import { createSessionStore, type SessionStorageLike, type SessionStore } from '@/features/session/session'
+import type { AppApi } from '@/features/walletApi'
 
 export type AppServices = {
   readonly queryClient: QueryClient
   readonly sessionStore: SessionStore
-  readonly walletApi: WalletApi
+  readonly walletApi: AppApi
 }
 
 /**
@@ -27,5 +29,6 @@ export function createAppServices(options: {
     getToken: sessionStore.getToken,
     onUnauthorized: () => sessionStore.signOut('expired'),
   })
-  return { queryClient, sessionStore, walletApi: createWalletApi(client) }
+  // The FX source gets the plain `fetch`: no wallet token, no 401 handling.
+  return { queryClient, sessionStore, walletApi: { ...createWalletApi(client), ...createFxApi(options.fetch) } }
 }

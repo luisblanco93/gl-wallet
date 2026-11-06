@@ -8,7 +8,7 @@ import { createQueryClient } from '@/app/queryClient'
 import { createSessionStore, type SessionStorageLike, type SessionStore } from '@/features/session/session'
 import { SessionProvider } from '@/features/session/SessionProvider'
 import { ToastProvider } from '@/features/toast/ToastProvider'
-import { WalletApiContext } from '@/features/walletApi'
+import { WalletApiContext, type AppApi } from '@/features/walletApi'
 
 /** Opaque session value issued by the mock API at login. */
 const DEMO_SESSION_ID = 'session-of-demo-user'
@@ -18,7 +18,7 @@ export const DEMO_SESSION: Session = {
   user: { id: 'user-1', email: 'demo@example.com', name: 'Demo' },
 }
 
-type FakeApi = { [K in keyof WalletApi]: ReturnType<typeof vi.fn<WalletApi[K]>> }
+type FakeApi = { [K in keyof AppApi]: ReturnType<typeof vi.fn<AppApi[K]>> }
 
 /** Every method fails loudly unless the test stubs it. */
 export function createFakeApi(): FakeApi {
@@ -34,6 +34,8 @@ export function createFakeApi(): FakeApi {
     updateMovement: vi.fn<WalletApi['updateMovement']>(notStubbed('updateMovement')),
     createTransfer: vi.fn<WalletApi['createTransfer']>(notStubbed('createTransfer')),
     getTransfer: vi.fn<WalletApi['getTransfer']>(notStubbed('getTransfer')),
+    // Rejects by default: screens render without estimates unless a test stubs rates.
+    getFxRates: vi.fn<AppApi['getFxRates']>(notStubbed('getFxRates')),
   }
 }
 
