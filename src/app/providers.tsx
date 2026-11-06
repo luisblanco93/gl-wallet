@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { config } from '@/config'
 import { createAppServices } from './services'
 import { SessionProvider } from '@/features/session/SessionProvider'
+import { ToastProvider } from '@/features/toast/ToastProvider'
 import { WalletApiContext } from '@/features/walletApi'
 
 const services = createAppServices({
@@ -15,7 +16,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={services.queryClient}>
       <SessionProvider store={services.sessionStore}>
-        <WalletApiContext value={services.walletApi}>{children}</WalletApiContext>
+        <WalletApiContext value={services.walletApi}>
+          <ToastProvider>{children}</ToastProvider>
+        </WalletApiContext>
       </SessionProvider>
     </QueryClientProvider>
   )

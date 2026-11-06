@@ -1,5 +1,5 @@
 import { ChevronDown, CircleAlert, CircleCheck, Eye, EyeOff, Lock } from 'lucide-react'
-import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react'
+import type { InputHTMLAttributes, ReactNode, Ref, SelectHTMLAttributes } from 'react'
 import { cx } from './cx'
 import { Icon } from './Icon'
 
@@ -30,6 +30,7 @@ export function FieldMessage({ id, tone, children }: { id: string; tone: 'error'
 }
 
 type BaseFieldProps = { id: string; label: ReactNode; error?: string; help?: ReactNode }
+type InputRef = { ref?: Ref<HTMLInputElement> }
 
 function describedBy(id: string, error?: string, help?: ReactNode): string | undefined {
   return [help ? `${id}-help` : null, error ? `${id}-error` : null].filter(Boolean).join(' ') || undefined
@@ -41,14 +42,16 @@ export function TextField({
   error,
   help,
   className,
+  ref,
   ...input
-}: BaseFieldProps & InputHTMLAttributes<HTMLInputElement>) {
+}: BaseFieldProps & InputRef & InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className={cx('flex flex-col', className)}>
       <label htmlFor={id} className="mb-1.5 text-label">
         {label}
       </label>
       <input
+        ref={ref}
         id={id}
         aria-invalid={!!error}
         aria-describedby={describedBy(id, error, help)}
@@ -75,8 +78,9 @@ export function PasswordField({
   error,
   visible,
   onToggleVisible,
+  ref,
   ...input
-}: BaseFieldProps & InputHTMLAttributes<HTMLInputElement> & { visible: boolean; onToggleVisible: () => void }) {
+}: BaseFieldProps & InputRef & InputHTMLAttributes<HTMLInputElement> & { visible: boolean; onToggleVisible: () => void }) {
   return (
     <div className="flex flex-col">
       <label htmlFor={id} className="mb-1.5 text-label">
@@ -84,6 +88,7 @@ export function PasswordField({
       </label>
       <div className="relative">
         <input
+          ref={ref}
           id={id}
           type={visible ? 'text' : 'password'}
           aria-invalid={!!error}

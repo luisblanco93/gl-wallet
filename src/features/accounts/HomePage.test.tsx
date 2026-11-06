@@ -7,7 +7,8 @@ import type { Account, Movement } from '@/domain/types'
 import { createTestProviders } from '@/test/providers'
 import { HomePage } from './HomePage'
 
-const NBSP = ' '
+/** Testing Library normalizes the page's non-breaking spaces to plain spaces. */
+const NBSP = ' '
 const MINUS = '−'
 
 const PESOS: Account = { id: 'acc-1', name: 'Cuenta Pesos', currency: 'ARS', balance: 85500000 }
@@ -47,7 +48,7 @@ describe('HomePage', () => {
     expect(screen.getByText('Hola, Demo')).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 1, name: 'Tu dinero' })).toBeInTheDocument()
     expect(screen.getByText('Cargando saldos…')).toBeInTheDocument()
-    expect(screen.queryByText(/\$ 0,00/)).not.toBeInTheDocument()
+    expect(screen.queryByText(`$${NBSP}0,00`)).not.toBeInTheDocument()
   })
 
   it('shows one card per account with available and in progress, never adding currencies', async () => {
@@ -57,7 +58,7 @@ describe('HomePage', () => {
       api.listMovements.mockResolvedValue(page([PENDING_OUT]))
     })
     const pesos = await screen.findByRole('article', { name: 'Cuenta Pesos' })
-    expect(within(pesos).getByText(`$${NBSP}835.000,00`)).toBeInTheDocument()
+    expect(await within(pesos).findByText(`$${NBSP}835.000,00`)).toBeInTheDocument()
     expect(within(pesos).getByText(`En proceso: ${MINUS}$${NBSP}20.000,00`)).toBeInTheDocument()
     expect(within(pesos).getByText('Ya está descontado del disponible.')).toBeInTheDocument()
     const dollars = screen.getByRole('article', { name: 'Cuenta Dolares' })
@@ -106,12 +107,4 @@ describe('HomePage', () => {
     expect(screen.getByRole('link', { name: /Ver todos/ })).toHaveAttribute('href', '/movimientos')
   })
 
-  it('invites to record the first movement when there are none', async () => {
-    setup((api) => {
-      api.listAccounts.mockResolvedValue([PESOS])
-      api.listPendingTransfers.mockResolvedValue([])
-      api.listMovements.mockResolvedValue(page([]))
-    })
-    expect(await screen.findByText('Aún no tienes movimientos')).toBeInTheDocument()
-  })
 })

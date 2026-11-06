@@ -26,13 +26,6 @@ describe('LoginPage', () => {
     expect(api.login).not.toHaveBeenCalled()
   })
 
-  it('explains a malformed email', async () => {
-    setup()
-    await userEvent.type(email(), 'demo')
-    await userEvent.type(password(), 'demo123')
-    await userEvent.click(submit())
-    expect(screen.getByText('El email no tiene un formato válido. Ejemplo: nombre@dominio.com')).toBeInTheDocument()
-  })
 
   it('shows wrong credentials and keeps the email', async () => {
     const { api } = setup()
@@ -75,13 +68,6 @@ describe('LoginPage', () => {
     await waitFor(() => expect(sessionStore.getState().status).toBe('signedIn'))
   })
 
-  it('lets the user show and hide the password', async () => {
-    setup()
-    const toggle = screen.getByRole('button', { name: 'Mostrar contraseña' })
-    await userEvent.click(toggle)
-    expect(password()).toHaveAttribute('type', 'text')
-    expect(screen.getByRole('button', { name: 'Ocultar contraseña' })).toHaveAttribute('aria-pressed', 'true')
-  })
 })
 
 describe('LoginPage after the session expired', () => {

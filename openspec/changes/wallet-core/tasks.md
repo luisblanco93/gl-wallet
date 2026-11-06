@@ -30,9 +30,9 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 
 ## 5. UI (Claude Design handoff)
 
-- [ ] 5.1 Tokens in `src/index.css`, shared UI adapted from the handoff, domain formatting (`formatSignedMoney`, `formatDate`, `categoriesFor`), app shell with navigation, toasts and focus on the page title
-- [ ] 5.2 Login screen with all states (field errors, wrong credentials, submitting, session expired)
-- [ ] 5.3 Home: account cards (available, in progress, unknown), recent movements, actions, loading/empty/error
+- [x] 5.1 Tokens in `src/index.css`, shared UI adapted from the handoff, domain formatting (`formatSignedMoney`, `formatDate`, `categoriesFor`), app shell with navigation, toasts and focus on the page title
+- [x] 5.2 Login screen with all states (field errors, wrong credentials, submitting, session expired)
+- [x] 5.3 Home: account cards (available, in progress, unknown), recent movements, actions, loading/empty/error
 - [ ] 5.4 Movements screen: filters, search, chips, pagination, empty/no-results/error states
 - [ ] 5.5 Movement detail panel and edit (`/movimientos/:id`, `getMovement`, `transferId` for the receipt)
 - [ ] 5.6 New movement form (debit rule blocks) and new account

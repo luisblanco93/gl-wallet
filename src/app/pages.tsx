@@ -1,42 +1,24 @@
-// Placeholder screens so routing and the session can be exercised end to end.
-// They are replaced by the real screens when the design arrives (wallet-core tasks 5.x).
-import { Navigate } from 'react-router'
-import { useSession } from '@/features/session/useSession'
+// Placeholder screens until their delivery: movements, detail and new movement (wallet-core 5.4–5.6)
+// and transfers (change `transfers`).
+import { PageTitle } from '@/shared/ui/PageTitle'
 
-export function LoginPage() {
-  const { state } = useSession()
-  if (state.status === 'signedIn') return <Navigate to="/" replace />
-
+function Placeholder({ title }: { title: string }) {
   return (
-    <main className="mx-auto max-w-md p-8">
-      <h1 className="text-2xl font-bold">Iniciar sesión</h1>
-      {state.reason === 'expired' && (
-        <p role="status" className="mt-4">
-          Tu sesión terminó. Vuelve a iniciar sesión.
-        </p>
-      )}
-      <p className="mt-4 text-slate-500">Pantalla provisoria: el formulario llega con el diseño.</p>
-    </main>
-  )
-}
-
-export function HomePage() {
-  const { signOut } = useSession()
-
-  return (
-    <main className="mx-auto max-w-md p-8">
-      <h1 className="text-2xl font-bold">Inicio</h1>
-      <button type="button" className="mt-4 underline" onClick={() => signOut('loggedOut')}>
-        Cerrar sesión
-      </button>
-    </main>
+    <>
+      <PageTitle>{title}</PageTitle>
+      <p className="text-ink-muted">Pantalla en construcción.</p>
+    </>
   )
 }
 
 export function MovementsPage() {
-  return (
-    <main className="mx-auto max-w-md p-8">
-      <h1 className="text-2xl font-bold">Movimientos</h1>
-    </main>
-  )
+  return <Placeholder title="Movimientos" />
+}
+
+export function NewMovementPage() {
+  return <Placeholder title="Nuevo movimiento" />
+}
+
+export function TransferPage() {
+  return <Placeholder title="Transferir" />
 }

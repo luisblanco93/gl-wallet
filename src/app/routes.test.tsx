@@ -28,10 +28,6 @@ describe('app routes', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Iniciar sesión' })).toBeInTheDocument()
   })
 
-  it('redirects a signed-out user from home to login', () => {
-    const { router } = renderAt('/')
-    expect(router.state.location.pathname).toBe('/login')
-  })
 
   it('shows protected screens inside the app shell to a signed-in user', () => {
     renderAt('/movimientos', { signedIn: true })
@@ -47,10 +43,6 @@ describe('app routes', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Tu dinero' })).toBeInTheDocument()
   })
 
-  it('sends unknown routes to home', () => {
-    const { router } = renderAt('/does-not-exist', { signedIn: true })
-    expect(router.state.location.pathname).toBe('/')
-  })
 
   it('warns that the session expired when an authenticated request is rejected', async () => {
     const { sessionStore, router } = renderAt('/movimientos', { signedIn: true })

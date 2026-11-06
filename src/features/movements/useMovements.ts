@@ -22,11 +22,11 @@ export type MovementsResult =
     }
 
 /** One page of movements (newest first, as the API returns them) for the list state. */
-export function useMovements(state: MovementListState): MovementsResult {
+export function useMovements(state: MovementListState, pageSize: number = MOVEMENTS_PAGE_SIZE): MovementsResult {
   const api = useWalletApi()
   const query = useQuery({
-    queryKey: [...MOVEMENTS_KEY, state],
-    queryFn: () => api.listMovements({ ...state, pageSize: MOVEMENTS_PAGE_SIZE }),
+    queryKey: [...MOVEMENTS_KEY, state, pageSize],
+    queryFn: () => api.listMovements({ ...state, pageSize }),
     placeholderData: keepPreviousData,
   })
 
@@ -38,7 +38,7 @@ export function useMovements(state: MovementListState): MovementsResult {
   return {
     status: 'ready',
     items,
-    range: visibleRange(page, MOVEMENTS_PAGE_SIZE, total),
+    range: visibleRange(page, pageSize, total),
     empty,
     isUpdating: query.isPlaceholderData,
   }
