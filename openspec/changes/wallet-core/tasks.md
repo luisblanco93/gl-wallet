@@ -13,7 +13,7 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 ## 2. API layer
 
 - [x] 2.1 `client`: tests with a mocked `fetch` for each error kind (field errors, message, HTML body, 401/404/422, network) and the auth header; then implement
-- [ ] 2.2 `endpoints`: typed functions for login, accounts (list, create), transactions (list with filters, create, patch) and pending transfers; DTO → domain mapping tests for amounts and for untrustworthy responses (`/auth/me` and `/categories` are not called, see design)
+- [x] 2.2 `endpoints`: typed functions for login, accounts (list, create), transactions (list with filters, create, patch) and pending transfers; DTO → domain mapping tests for amounts and for untrustworthy responses (`/auth/me` and `/categories` are not called, see design)
 
 ## 3. App wiring
 
