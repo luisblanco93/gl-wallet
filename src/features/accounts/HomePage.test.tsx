@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import type { MovementPage } from '@/api/endpoints'
@@ -25,6 +25,7 @@ const PENDING_OUT: Movement = {
   description: 'Pago compartido',
   status: 'pending',
   counterpartAccountId: 'acc-4',
+  transferId: null,
   createdAt: '2026-11-05T17:30:00Z',
 }
 
@@ -107,4 +108,58 @@ describe('HomePage', () => {
     expect(screen.getByRole('link', { name: /Ver todos/ })).toHaveAttribute('href', '/movimientos')
   })
 
+  it('opens a recent movement over home and gives focus back to its row on close', async () => {
+    const { api } = setup((fake) => {
+      fake.listAccounts.mockResolvedValue([PESOS])
+      fake.listPendingTransfers.mockResolvedValue([])
+      fake.listMovements.mockResolvedValue(page([PENDING_OUT]))
+      fake.getMovement.mockResolvedValue(PENDING_OUT)
+    })
+    const row = await screen.findByRole('button', { name: /^Transferencia a acc-4\./ })
+    await userEvent.click(row)
+
+    const detail = await screen.findByRole('dialog', { name: 'Detalle del movimiento' })
+    expect(await within(detail).findByText('Las transferencias no se pueden editar')).toBeInTheDocument()
+    expect(api.getMovement).toHaveBeenCalledWith('transfer-1-out')
+    expect(screen.getByRole('heading', { level: 1, name: 'Tu dinero' })).toBeInTheDocument()
+
+    await userEvent.click(within(detail).getByRole('button', { name: 'Cerrar detalle' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Transferencia a acc-4\./ })).toHaveFocus())
+  })
+
+  it('rejects an account name under 2 characters without calling the API', async () => {
+    const { api } = setup((fake) => {
+      fake.listAccounts.mockResolvedValue([PESOS])
+      fake.listPendingTransfers.mockResolvedValue([])
+      fake.listMovements.mockResolvedValue(page([]))
+    })
+    await userEvent.click(await screen.findByRole('button', { name: 'Nueva cuenta' }))
+    await userEvent.type(screen.getByLabelText('Nombre de la cuenta'), 'A')
+    await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+    expect(screen.getByText('El nombre debe tener al menos 2 caracteres.')).toBeInTheDocument()
+    expect(screen.getByText('La moneda no se puede cambiar después')).toBeInTheDocument()
+    expect(api.createAccount).not.toHaveBeenCalled()
+  })
+
+  it('creates an ARS account and shows it in the balances', async () => {
+    const AHORRO: Account = { id: 'acc-3', name: 'Ahorro', currency: 'ARS', balance: 0 }
+    const { api } = setup((fake) => {
+      fake.listAccounts.mockResolvedValue([PESOS])
+      fake.listPendingTransfers.mockResolvedValue([])
+      fake.listMovements.mockResolvedValue(page([]))
+      fake.createAccount.mockResolvedValue(AHORRO)
+    })
+    await userEvent.click(await screen.findByRole('button', { name: 'Nueva cuenta' }))
+    await userEvent.type(screen.getByLabelText('Nombre de la cuenta'), 'Ahorro')
+    api.listAccounts.mockResolvedValue([PESOS, AHORRO])
+    await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
+
+    expect(api.createAccount).toHaveBeenCalledWith({ name: 'Ahorro', currency: 'ARS' })
+    const card = await screen.findByRole('article', { name: 'Ahorro' })
+    expect(await within(card).findByText(`$${NBSP}0,00`)).toBeInTheDocument()
+    // The toast region lives in the app shell (not rendered here); the form closes and gives focus back.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Nueva cuenta' })).toHaveFocus())
+    expect(screen.queryByLabelText('Nombre de la cuenta')).not.toBeInTheDocument()
+  })
 })
