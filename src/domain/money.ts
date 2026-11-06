@@ -7,22 +7,33 @@ export type AmountError = 'empty' | 'invalid' | 'tooManyDecimals' | 'belowMinimu
 const CENTS_PER_UNIT = 100
 const MAX_DECIMALS = 2
 const MIN_AMOUNT: Cents = 1
-/** Digits, optionally followed by one `,` or `.` and more digits. No sign, no thousands separators. */
-const AMOUNT_PATTERN = /^(\d+)(?:[.,](\d+))?$/
+/** es-AR thousands: dots grouping digits in threes, first group not starting with 0; optional `,` decimals. */
+const GROUPED_PATTERN = /^([1-9]\d{0,2}(?:\.\d{3})+)(?:,(\d+))?$/
+/** Digits, optionally followed by one `,` or `.` and more digits. */
+const PLAIN_PATTERN = /^(\d+)(?:[.,](\d+))?$/
+
+function splitAmount(text: string): { units: string; decimals: string } | null {
+  const grouped = GROUPED_PATTERN.exec(text)
+  if (grouped) return { units: (grouped[1] ?? '').replaceAll('.', ''), decimals: grouped[2] ?? '' }
+
+  const plain = PLAIN_PATTERN.exec(text)
+  if (plain) return { units: plain[1] ?? '', decimals: plain[2] ?? '' }
+
+  return null
+}
 
 /**
  * Parses user input into cents from its text, never through a float.
- * Thousands separators are not supported: `1.234` reads as 1 with 3 decimals and fails.
+ * es-AR convention: `1.234,56` and `1.500` use `.` for thousands; any other `.` is decimal (`1234.56`).
  */
 export function parseAmount(input: string): Result<Cents, AmountError> {
   const text = input.trim()
   if (text === '') return { ok: false, error: 'empty' }
 
-  const match = AMOUNT_PATTERN.exec(text)
-  if (!match) return { ok: false, error: 'invalid' }
+  const parts = splitAmount(text)
+  if (!parts) return { ok: false, error: 'invalid' }
 
-  const units = match[1] ?? ''
-  const decimals = match[2] ?? ''
+  const { units, decimals } = parts
   if (decimals.length > MAX_DECIMALS) return { ok: false, error: 'tooManyDecimals' }
 
   const cents = Number(units) * CENTS_PER_UNIT + Number(decimals.padEnd(MAX_DECIMALS, '0'))
