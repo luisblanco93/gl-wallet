@@ -1,13 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  formatMoney,
-  formatSignedMoney,
-  parseAmount,
-  signedAmount,
-  toApiAmount,
-  toCents,
-  totalsByCurrency,
-} from './money'
+import { formatAmountInput, formatMoney, formatSignedMoney, parseAmount, signedAmount, toApiAmount, toCents, totalsByCurrency } from './money'
 
 const NBSP = ' '
 const MINUS = '−'
@@ -130,6 +122,17 @@ describe('formatMoney', () => {
     expect(formatMoney(5, 'ARS')).toBe(`$${NBSP}0,05`)
     expect(formatMoney(0, 'ARS')).toBe(`$${NBSP}0,00`)
     expect(formatMoney(-0, 'ARS')).toBe(`$${NBSP}0,00`)
+  })
+})
+
+describe('formatAmountInput', () => {
+  it('writes the amount the way the user types it: es-AR separators, no symbol', () => {
+    expect(formatAmountInput(2000000)).toBe('20.000,00')
+    expect(formatAmountInput(150)).toBe('1,50')
+  })
+
+  it('round-trips through parseAmount', () => {
+    expect(parseAmount(formatAmountInput(123456789))).toEqual({ ok: true, value: 123456789 })
   })
 })
 

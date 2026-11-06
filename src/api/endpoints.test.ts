@@ -155,6 +155,7 @@ describe('listMovements', () => {
         description: 'Sueldo septiembre',
         status: 'completed',
         counterpartAccountId: null,
+        transferId: null,
         createdAt: '2026-09-01T09:00:00Z',
       },
       {
@@ -168,9 +169,16 @@ describe('listMovements', () => {
         description: 'Sueldo septiembre',
         status: 'pending',
         counterpartAccountId: 'acc-4',
+        transferId: 'transfer-1',
         createdAt: '2026-09-01T09:00:00Z',
       },
     ])
+  })
+
+  it('keeps a transfer without a receipt id: no money rule reads it', async () => {
+    const { api } = fakeClient(page([{ ...TRANSFER_OUT_DTO, transferId: null }]))
+    const [movement] = (await api.listMovements({ page: 1, pageSize: 10 })).items
+    expect(movement?.transferId).toBeNull()
   })
 
   it('accepts the failed status', async () => {
@@ -221,6 +229,22 @@ describe('listPendingTransfers', () => {
       query: { type: 'transfer', status: 'pending', page: 1, pageSize: 50 },
     })
     expect(pending.map((movement) => movement.id)).toEqual(['transfer-1-out'])
+  })
+})
+
+describe('getMovement', () => {
+  it('reads one movement by its encoded id', async () => {
+    const { api, request } = fakeClient({ transaction: TRANSFER_OUT_DTO })
+    const movement = await api.getMovement('transfer-1/out')
+    expect(request).toHaveBeenCalledWith('GET', '/transactions/transfer-1%2Fout')
+    expect(movement.transferId).toBe('transfer-1')
+  })
+
+  it.each(['', '.', '..'])('treats the id %j as not found without a request (no path traversal)', async (id) => {
+    const { api, request } = fakeClient({ transaction: INCOME_DTO })
+    expect((await rejection(api.getMovement(id))).kind).toBe('notFound')
+    expect((await rejection(api.updateMovement(id, { category: 'other', description: '' }))).kind).toBe('notFound')
+    expect(request).not.toHaveBeenCalled()
   })
 })
 

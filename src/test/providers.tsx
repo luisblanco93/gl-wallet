@@ -29,6 +29,7 @@ export function createFakeApi(): FakeApi {
     createAccount: vi.fn<WalletApi['createAccount']>(notStubbed('createAccount')),
     listMovements: vi.fn<WalletApi['listMovements']>(notStubbed('listMovements')),
     listPendingTransfers: vi.fn<WalletApi['listPendingTransfers']>(notStubbed('listPendingTransfers')),
+    getMovement: vi.fn<WalletApi['getMovement']>(notStubbed('getMovement')),
     createMovement: vi.fn<WalletApi['createMovement']>(notStubbed('createMovement')),
     updateMovement: vi.fn<WalletApi['updateMovement']>(notStubbed('updateMovement')),
   }

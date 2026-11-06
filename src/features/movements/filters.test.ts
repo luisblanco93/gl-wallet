@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hasFilters, readMovementList, toSearchParams, visibleRange, withFilters, withPage } from './filters'
+import { hasFilters, pageCount, readMovementList, toSearchParams, visibleRange, withFilters, withPage } from './filters'
 
 const DEFAULT = { page: 1 }
 
@@ -84,6 +84,14 @@ describe('visibleRange', () => {
   it('shows nothing when there are no rows or the page is past the end', () => {
     expect(visibleRange(1, 10, 0)).toEqual({ from: 0, to: 0, total: 0 })
     expect(visibleRange(9, 10, 21)).toEqual({ from: 0, to: 0, total: 21 })
+  })
+})
+
+describe('pageCount', () => {
+  it('rounds up and is at least 1', () => {
+    expect(pageCount(23, 10)).toBe(3)
+    expect(pageCount(20, 10)).toBe(2)
+    expect(pageCount(0, 10)).toBe(1)
   })
 })
 

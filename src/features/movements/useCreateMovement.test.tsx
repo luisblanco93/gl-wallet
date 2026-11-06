@@ -22,6 +22,7 @@ const CREATED: Movement = {
   currency: 'ARS',
   status: 'completed',
   counterpartAccountId: null,
+  transferId: null,
   createdAt: '2026-11-06T12:00:00.000Z',
 }
 

@@ -19,6 +19,7 @@ function movement(id: string): Movement {
     description: 'Supermercado',
     status: 'completed',
     counterpartAccountId: null,
+    transferId: null,
     createdAt: '2026-11-01T10:00:00.000Z',
   }
 }
@@ -50,6 +51,8 @@ describe('useMovements', () => {
     if (result.current.status !== 'ready') throw new Error('not ready')
     expect(result.current.items.map((m) => m.id)).toEqual(['txn-11', 'txn-12'])
     expect(result.current.range).toEqual({ from: 11, to: 12, total: 12 })
+    expect(result.current.page).toBe(2)
+    expect(result.current.pageCount).toBe(2)
     expect(result.current.empty).toBeNull()
   })
 
@@ -86,5 +89,13 @@ describe('useMovements', () => {
     const filtered = setup({ type: 'income', page: 1 }, (fake) => fake.listMovements.mockResolvedValue(page([], 1, 0)))
     await waitFor(() => expect(filtered.result.current.status).toBe('ready'))
     expect(filtered.result.current.status === 'ready' && filtered.result.current.empty).toBe('noResults')
+  })
+
+  it('does not call a page past the end "no movements yet"', async () => {
+    const { result } = setup({ page: 9 }, (fake) => fake.listMovements.mockResolvedValue(page([], 9, 23)))
+    await waitFor(() => expect(result.current.status).toBe('ready'))
+    if (result.current.status !== 'ready') throw new Error('not ready')
+    expect(result.current.empty).toBeNull()
+    expect(result.current.pageCount).toBe(3)
   })
 })

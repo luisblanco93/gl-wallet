@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { accountFigures } from './balances'
+import { accountFigures, availableAfter } from './balances'
 import type { Movement } from './types'
 
 const ANA = { id: 'acc-ana', balance: 72000000 }
@@ -15,6 +15,7 @@ function transfer(overrides: Partial<Movement> = {}): Movement {
     category: 'transfer',
     status: 'pending',
     counterpartAccountId: 'acc-4',
+    transferId: null,
     description: '',
     createdAt: '2026-11-06T12:00:00.000Z',
     ...overrides,
@@ -73,5 +74,16 @@ describe('accountFigures', () => {
       inProgress: 'unknown',
       available: 'unknown',
     })
+  })
+})
+
+describe('availableAfter', () => {
+  it('lowers the available by an expense and raises it by an income', () => {
+    expect(availableAfter(85500000, { type: 'expense', direction: null, amount: 5200000 })).toBe(80300000)
+    expect(availableAfter(85500000, { type: 'income', direction: null, amount: 100 })).toBe(85500100)
+  })
+
+  it('stays unknown when the available was unknown', () => {
+    expect(availableAfter('unknown', { type: 'income', direction: null, amount: 100 })).toBe('unknown')
   })
 })

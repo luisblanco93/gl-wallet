@@ -20,6 +20,7 @@ const PENDING_OUT: Movement = {
   description: '',
   status: 'pending',
   counterpartAccountId: 'acc-4',
+  transferId: null,
   createdAt: '2026-11-06T12:00:00.000Z',
 }
 

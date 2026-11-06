@@ -16,6 +16,7 @@ const EXPENSE: Movement = {
   description: 'Supermercado',
   status: 'completed',
   counterpartAccountId: null,
+  transferId: null,
   createdAt: '2026-11-01T10:00:00.000Z',
 }
 
