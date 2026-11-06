@@ -1,5 +1,5 @@
 import { LoaderCircle, type LucideIcon } from 'lucide-react'
-import type { ButtonHTMLAttributes } from 'react'
+import type { ButtonHTMLAttributes, Ref } from 'react'
 import { cx } from './cx'
 import { Icon } from './Icon'
 
@@ -13,6 +13,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   /** Disables the button and shows `loadingLabel`; the container must also ignore repeated submits. */
   loading?: boolean
   loadingLabel?: string
+  ref?: Ref<HTMLButtonElement>
 }
 
 const BASE =
@@ -36,10 +37,12 @@ export function Button({
   className,
   disabled,
   type = 'button',
+  ref,
   ...rest
 }: ButtonProps) {
   return (
     <button
+      ref={ref}
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}

@@ -15,7 +15,7 @@ export type AccountCardView = {
   readonly pendingLabel: string | undefined
 }
 
-const CURRENCY_NAMES: Record<Currency, string> = {
+export const CURRENCY_NAMES: Readonly<Record<Currency, string>> = {
   ARS: 'Pesos argentinos',
   USD: 'Dólares estadounidenses',
   EUR: 'Euros',

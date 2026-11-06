@@ -2,7 +2,7 @@ import { categoryLabel } from '@/domain/categories'
 import { formatDate } from '@/domain/dates'
 import { formatSignedMoney, signedAmount } from '@/domain/money'
 import { transferLabel } from '@/domain/transferLabel'
-import type { Account, Movement, MovementStatus } from '@/domain/types'
+import type { Account, Movement, MovementStatus, MovementType } from '@/domain/types'
 
 export type MovementRowView = {
   readonly id: string
@@ -18,15 +18,22 @@ export type MovementRowView = {
   readonly ariaLabel: string
 }
 
-type OwnAccount = Pick<Account, 'id' | 'name'>
+export type OwnAccount = Pick<Account, 'id' | 'name'>
 
-const STATUS_LABELS: Record<MovementStatus, string> = {
+export const STATUS_LABELS: Readonly<Record<MovementStatus, string>> = {
   pending: 'Pendiente',
   completed: 'Completado',
   failed: 'Fallida',
 }
 
-function nameOf(accountId: string, ownAccounts: readonly OwnAccount[]): string {
+export const TYPE_LABELS: Readonly<Record<MovementType, string>> = {
+  income: 'Ingreso',
+  expense: 'Gasto',
+  transfer: 'Transferencia',
+}
+
+/** The account's name when it is one of the user's accounts, otherwise its raw id. */
+export function nameOf(accountId: string, ownAccounts: readonly OwnAccount[]): string {
   return ownAccounts.find((account) => account.id === accountId)?.name ?? accountId
 }
 

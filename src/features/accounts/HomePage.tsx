@@ -1,25 +1,41 @@
 import { ArrowLeftRight, ArrowRight, Plus, RotateCw, WifiOff } from 'lucide-react'
-import { Link, useNavigate } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Button } from '@/shared/ui/Button'
 import { LoadingRegion, Skeleton, StateMessage } from '@/shared/ui/Feedback'
 import { Icon } from '@/shared/ui/Icon'
 import { PageTitle } from '@/shared/ui/PageTitle'
 import { useSession } from '@/features/session/useSession'
+import { MovementDetailPanel } from '@/features/movements/MovementDetail'
 import { toMovementRowView } from '@/features/movements/movementView'
 import { TransactionRow, TransactionRowSkeletonList } from '@/features/movements/TransactionRow'
 import { useMovements } from '@/features/movements/useMovements'
+import { useReturnFocusToRow } from '@/features/movements/useReturnFocusToRow'
 import { AccountCard } from './AccountCard'
+import { NewAccountForm } from './NewAccountForm'
 import { toAccountCardView } from './accountView'
 import { useAccounts, type AccountView } from './useAccounts'
 
 const RECENT_COUNT = 5
 const FIRST_PAGE = { page: 1 } as const
+/** The movement whose detail is open over home; in the URL, so Back closes it and a reload keeps it. */
+const DETAIL_PARAM = 'movimiento'
 
 export function HomePage() {
   const { state } = useSession()
   const navigate = useNavigate()
   const accounts = useAccounts()
   const userName = state.status === 'signedIn' ? state.session.user.name : ''
+  const [isAddingAccount, setAddingAccount] = useState(false)
+  const newAccountButtonRef = useRef<HTMLButtonElement>(null)
+  const [returnFocus, setReturnFocus] = useState(0)
+  useEffect(() => {
+    if (returnFocus > 0) newAccountButtonRef.current?.focus()
+  }, [returnFocus])
+  const closeNewAccount = () => {
+    setAddingAccount(false)
+    setReturnFocus((count) => count + 1)
+  }
 
   return (
     <>
@@ -49,12 +65,32 @@ export function HomePage() {
       ) : (
         <>
           <section aria-labelledby="balances-title" className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <h2 id="balances-title" className="text-title">
-                Saldos por cuenta
-              </h2>
-              <p className="text-caption text-ink-muted">Cada moneda se muestra por separado: no se suman entre sí.</p>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div className="flex flex-col gap-1">
+                <h2 id="balances-title" className="text-title">
+                  Saldos por cuenta
+                </h2>
+                <p className="text-caption text-ink-muted">Cada moneda se muestra por separado: no se suman entre sí.</p>
+              </div>
+              {!isAddingAccount && (
+                <Button
+                  ref={newAccountButtonRef}
+                  variant="secondary"
+                  size="md"
+                  icon={Plus}
+                  aria-controls="new-account"
+                  aria-expanded={false}
+                  onClick={() => setAddingAccount(true)}
+                >
+                  Nueva cuenta
+                </Button>
+              )}
             </div>
+            {isAddingAccount && (
+              <div id="new-account">
+                <NewAccountForm onDone={closeNewAccount} />
+              </div>
+            )}
             {accounts.status === 'loading' ? (
               <AccountCardsSkeleton />
             ) : (
@@ -109,6 +145,27 @@ function AccountCardsSkeleton() {
 function RecentMovements({ ownAccounts }: { ownAccounts: readonly AccountView[] }) {
   const navigate = useNavigate()
   const movements = useMovements(FIRST_PAGE, RECENT_COUNT)
+  const [params, setParams] = useSearchParams()
+  const openId = params.get(DETAIL_PARAM)
+  const { registerRow, focusRowOnClose } = useReturnFocusToRow(openId !== null)
+
+  const openDetail = (id: string) =>
+    setParams((current) => {
+      const next = new URLSearchParams(current)
+      next.set(DETAIL_PARAM, id)
+      return next
+    })
+  const closeDetail = (id: string) => {
+    focusRowOnClose(id)
+    setParams(
+      (current) => {
+        const next = new URLSearchParams(current)
+        next.delete(DETAIL_PARAM)
+        return next
+      },
+      { replace: true },
+    )
+  }
 
   return (
     <section aria-labelledby="recent-title" className="flex flex-col gap-4">
@@ -143,14 +200,18 @@ function RecentMovements({ ownAccounts }: { ownAccounts: readonly AccountView[] 
             {movements.items.map((movement) => (
               <li key={movement.id}>
                 <TransactionRow
+                  ref={registerRow(movement.id)}
                   compact
                   row={toMovementRowView(movement, ownAccounts)}
-                  onSelect={(id) => navigate(`/movimientos/${encodeURIComponent(id)}`)}
+                  onSelect={openDetail}
                 />
               </li>
             ))}
           </ul>
         ))}
+      {openId !== null && (
+        <MovementDetailPanel id={openId} ownAccounts={ownAccounts} onClose={() => closeDetail(openId)} />
+      )}
     </section>
   )
 }
