@@ -7,6 +7,7 @@ import type { Session, WalletApi } from '@/api/endpoints'
 import { createQueryClient } from '@/app/queryClient'
 import { createSessionStore, type SessionStorageLike, type SessionStore } from '@/features/session/session'
 import { SessionProvider } from '@/features/session/SessionProvider'
+import { ToastProvider } from '@/features/toast/ToastProvider'
 import { WalletApiContext } from '@/features/walletApi'
 
 /** Opaque session value issued by the mock API at login. */
@@ -56,7 +57,10 @@ export type TestProviders = {
   readonly api: FakeApi
   readonly queryClient: QueryClient
   readonly sessionStore: SessionStore
+  /** Every app provider plus a memory router at `initialPath`. */
   readonly wrapper: (props: { children: ReactNode }) => ReactNode
+  /** Every app provider, without a router (for tests that build their own). */
+  readonly Providers: (props: { children: ReactNode }) => ReactNode
 }
 
 export function createTestProviders(options: { signedIn?: boolean; initialPath?: string } = {}): TestProviders {
@@ -66,17 +70,25 @@ export function createTestProviders(options: { signedIn?: boolean; initialPath?:
   const sessionStore = createSessionStore(memoryStorage(), { onSignOut: () => queryClient.clear() })
   if (signedIn) sessionStore.signIn(DEMO_SESSION)
 
-  function wrapper({ children }: { children: ReactNode }) {
+  function Providers({ children }: { children: ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
         <SessionProvider store={sessionStore}>
           <WalletApiContext value={api}>
-            <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
+            <ToastProvider>{children}</ToastProvider>
           </WalletApiContext>
         </SessionProvider>
       </QueryClientProvider>
     )
   }
 
-  return { api, queryClient, sessionStore, wrapper }
+  function wrapper({ children }: { children: ReactNode }) {
+    return (
+      <Providers>
+        <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
+      </Providers>
+    )
+  }
+
+  return { api, queryClient, sessionStore, wrapper, Providers }
 }
