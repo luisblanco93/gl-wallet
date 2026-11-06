@@ -54,6 +54,10 @@ The system SHALL register an income or an expense via `POST /transactions` with 
 - **WHEN** the user enters an expense of US$ 1.000 on Cuenta Dólares with US$ 440 available
 - **THEN** the amount field shows "Supera tu disponible de US$ 440,00", submit is disabled, and no request is sent
 
+#### Scenario: Double submit
+- **WHEN** the user submits the form again while the first request is still in flight
+- **THEN** no second request is sent, so the movement is recorded once
+
 #### Scenario: Income is never blocked by funds
 - **WHEN** the user records an income of any valid amount
 - **THEN** the debit rule is not applied

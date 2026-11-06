@@ -64,10 +64,16 @@ Greenfield React app over a mock API we cannot change. The API's verified quirks
 - Accounts screen combines `['accounts']` + `['pendingTransfers']` through `accountFigures`. If `['pendingTransfers']` fails, available is unknown and debits are blocked (fail closed: with money, an unknown available is not "the full balance").
 
 ### Session
-A small store outside React holds `{ token, user }` or the reason the session ended (`loggedOut` or `expired`), persisted in `sessionStorage`: it survives reloads and ends with the tab. The API client reads the token from it, and React reads it through a context (`useSyncExternalStore`). Ending the session clears the query cache and is idempotent, because several requests can return 401 at once. A missing, corrupt or wrong-shaped stored value means signed out. `localStorage` was rejected because a wallet session should not outlive the tab. Zustand is unnecessary for one value.
+A small store outside React holds `{ token, user }` or the reason the session ended (`loggedOut` or `expired`), persisted in `sessionStorage`: it survives reloads and ends with the tab. The API client reads the token from it, and React reads it through a context (`useSyncExternalStore`). Ending the session clears the query cache and is idempotent, because several requests can return 401 at once. A missing, corrupt or wrong-shaped stored value means signed out. `localStorage` was rejected because a wallet session should not outlive the tab. Zustand is unnecessary for one value. The store, its context, `useSession` and `RequireSession` live in `features/session`, so feature hooks such as `useLogin` never import from `app`; `app` only creates and provides them.
 
 ### Search
-Debounced 300 ms in the hook; filters and page live in the URL query string so a filtered view survives reloads and the back button. Reading and writing the URL are pure functions in `features/movements/filters.ts`: unknown values (`type=xyz`, `page=0`, `page=abc`) fall back to their defaults, and changing any filter resets the page to 1.
+Filters and page live in the URL query string so a filtered view survives reloads and the back button. The search field keeps its own text and writes it to the URL 300 ms after the last keystroke, so the URL and the query only hold the committed search; consecutive pages keep the previous rows on screen while the next one loads. `visibleRange(page, pageSize, total)` gives the "Mostrando X–Y de N" figures. Reading and writing the URL are pure functions in `features/movements/filters.ts`: unknown values (`type=xyz`, `page=0`, `page=abc`) fall back to their defaults, and changing any filter resets the page to 1.
+
+### Feature hooks
+- **API access:** `features/walletApi.ts` holds a React context with the `WalletApi`; `app` provides it and hooks read it with `useWalletApi()`, so `api` stays free of React and tests inject a fake API.
+- **Accounts:** `useAccounts` reports the pending-transfers request as `loading`, `error` or `ready`. Only `ready` yields a known available; while loading or after an error, available is `'unknown'` and `canDebit` blocks, so a debit is never checked against the full balance.
+- **Mutations as the last barrier:** the forms disable invalid submits, and the hooks check again before any request: an expense goes through `canDebit`, the `transfer` category and descriptions over 500 characters are rejected, transfers cannot be edited, and an account name must have 2–100 characters. A failed check rejects without calling the API.
+- **Single submit:** `useSingleSubmitMutation` ignores a second call while one is in flight, using a ref set synchronously (React state could still read idle during a fast double click). All mutations use it; none retries.
 
 ## Risks / Trade-offs
 
