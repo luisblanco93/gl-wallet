@@ -14,6 +14,10 @@ describe('nextPoll', () => {
     expect(nextPoll('pending', TRANSFER_POLL_MAX_MS)).toEqual({ poll: false, outcome: 'delayed' })
   })
 
+  it('stops as delayed when the elapsed time cannot be computed', () => {
+    expect(nextPoll('pending', Number.NaN)).toEqual({ poll: false, outcome: 'delayed' })
+  })
+
   it('stops as failed when the API reports a failed transfer', () => {
     expect(nextPoll('failed', 1500)).toEqual({ poll: false, outcome: 'failed' })
   })
