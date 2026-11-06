@@ -12,6 +12,10 @@ The system SHALL list movements of all accounts or of one account, newest first,
 - **WHEN** the user filters by Cuenta Pesos
 - **THEN** only movements of that account are listed and the counter reflects the filtered total
 
+#### Scenario: Movement without description
+- **WHEN** an income or expense has an empty description
+- **THEN** its row uses the category label as the title
+
 #### Scenario: Pending movement
 - **WHEN** a listed movement has status `pending`
 - **THEN** its row shows a "Pendiente" badge with icon and text, not color alone
@@ -44,7 +48,7 @@ Transfer rows SHALL show their direction and counterpart: "Transferencia a …" 
 - **THEN** the row reads "Transferencia a acc-4"
 
 ### Requirement: Create income or expense
-The system SHALL register an income or an expense via `POST /transactions` with account, type, amount, category and optional description (max 500 characters). The `transfer` category SHALL NOT be selectable. An expense SHALL pass the debit rule before it is sent. On success, accounts and movements SHALL refresh.
+The system SHALL register an income or an expense via `POST /transactions` with account, type, amount, category and optional description (max 500 characters). Selectable categories depend on the type: an income offers Sueldo, Freelance and Otros; an expense offers Alquiler, Supermercado, Transporte, Entretenimiento, Servicios, Salud and Otros; `transfer` is never selectable. An expense SHALL pass the debit rule before it is sent. On success, accounts and movements SHALL refresh.
 
 #### Scenario: Valid expense
 - **WHEN** the user records an expense of $ 5.000 from Cuenta Pesos with $ 855.000 available
@@ -72,6 +76,10 @@ The system SHALL allow editing only `category` and `description`, and only for i
 #### Scenario: Edit an expense
 - **WHEN** the user changes the category of "Supermercado" to "Otros"
 - **THEN** the change is saved and the list shows the new category
+
+#### Scenario: Stored category outside the type's list
+- **WHEN** the user edits a movement whose stored category is not offered for its type
+- **THEN** that category stays available as the current option, so saving does not change it silently
 
 #### Scenario: Open a transfer
 - **WHEN** the user opens the detail of a transfer

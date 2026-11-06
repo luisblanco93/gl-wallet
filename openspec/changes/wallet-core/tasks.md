@@ -28,14 +28,15 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 - [x] 4.3 `useCreateMovement`, `useEditMovement`, `useCreateAccount` with pre-request checks, single submit and invalidations
 - [x] 4.4 `useLogin`: validate the fields, sign in and store the session; a 401 here means wrong credentials, not an expired session
 
-## 5. UI (blocked until the Claude Design handoff)
+## 5. UI (Claude Design handoff)
 
-- [ ] 5.1 Design tokens into `src/index.css` (`@theme`)
-- [ ] 5.2 Login screen with all states
-- [ ] 5.3 Home: account cards (available, in progress), recent movements, actions
-- [ ] 5.4 Movements screen: filters, search, pagination, empty/error states
-- [ ] 5.5 Movement detail/edit, new movement form, new account modal
-- [ ] 5.6 Component tests for the critical flows: login error, expense above available blocked
+- [ ] 5.1 Tokens in `src/index.css`, shared UI adapted from the handoff, domain formatting (`formatSignedMoney`, `formatDate`, `categoriesFor`), app shell with navigation, toasts and focus on the page title
+- [ ] 5.2 Login screen with all states (field errors, wrong credentials, submitting, session expired)
+- [ ] 5.3 Home: account cards (available, in progress, unknown), recent movements, actions, loading/empty/error
+- [ ] 5.4 Movements screen: filters, search, chips, pagination, empty/no-results/error states
+- [ ] 5.5 Movement detail panel and edit (`/movimientos/:id`, `getMovement`, `transferId` for the receipt)
+- [ ] 5.6 New movement form (debit rule blocks) and new account
+- [ ] 5.7 Component tests for the critical flows: login error, expense above available blocked, transfer edit blocked
 
 ## 6. Verification
 

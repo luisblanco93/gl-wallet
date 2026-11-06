@@ -75,6 +75,17 @@ Filters and page live in the URL query string so a filtered view survives reload
 - **Mutations as the last barrier:** the forms disable invalid submits, and the hooks check again before any request: an expense goes through `canDebit`, the `transfer` category and descriptions over 500 characters are rejected, transfers cannot be edited, and an account name must have 2–100 characters. A failed check rejects without calling the API.
 - **Single submit:** `useSingleSubmitMutation` ignores a second call while one is in flight, using a ref set synchronously (React state could still read idle during a fast double click). All mutations use it; none retries.
 
+### UI (design handoff)
+- **Source:** the Claude Design handoff is the visual source of truth (tokens, copy, states). Its presentational components are adapted into `src/shared/ui` and feature folders after review; its `lib/format.ts` and view-models are not used, because they work with floats: every figure comes from the domain in cents.
+- **Formatting added to the domain:** `formatSignedMoney` (`+` for incomes, `−` for debits), `formatDate` (`5 nov 2026, 14:30`, Buenos Aires time) and `categoriesFor(type)`.
+- **View models:** pure functions in each feature turn domain objects into the props the components render (labels, tone, notes, aria labels), so components hold no rules.
+- **States the handoff does not draw**, built from its system: available unknown on an account card (warning with "Reintentar"), the "Fallida" badge (error tokens, `circle-alert`) and the new-account form.
+- **Own-account transfers** keep one row per side (`DECISIONS.md`), although the handoff groups them.
+- **Expense above available** is blocked (debit rule); the handoff's warning alert is reused as the blocking message.
+- **Routes:** `/login`, `/`, `/movimientos`, `/movimientos/nuevo`, `/movimientos/:id` and `/transferir` (placeholder owned by the `transfers` change).
+- **Dependencies:** `lucide-react`, required by the handoff's icon set. No `clsx` (a small join helper is enough) and no focus-trap library: the detail panel is a native `<dialog>` opened with `showModal()`, which traps focus and closes on Escape; focus returns to the row by hand.
+- **Fonts:** Caprasimo and Figtree load from Google Fonts, a runtime request to an external server.
+
 ## Risks / Trade-offs
 
 - **Pending transfers beyond 50**: the API caps `pageSize` at 50. Available is computed from one page of pending outgoing transfers. Since transfers settle in ~1.5 s, more than 50 pending at once is unrealistic; documented, not handled.

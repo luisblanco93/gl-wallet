@@ -36,7 +36,7 @@ The system SHALL persist the session in `sessionStorage` so it survives a page r
 - **THEN** the token and every cached query are removed and the login screen is shown
 
 ### Requirement: Invalid session handling
-Any `unauthorized` error on an authenticated request SHALL end the session and redirect to login with the message "Tu sesión terminó. Vuelve a iniciar sesión."
+Any `unauthorized` error on an authenticated request SHALL end the session and redirect to login with a warning titled "Tu sesión venció" and the text "Por seguridad, cerramos tu sesión. Inicia sesión de nuevo para continuar." The copy SHALL NOT claim a cause the client cannot know (such as inactivity).
 
 #### Scenario: Token rejected
 - **WHEN** an authenticated request returns 401
