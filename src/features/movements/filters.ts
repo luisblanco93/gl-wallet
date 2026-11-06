@@ -60,3 +60,18 @@ export function withFilters(state: MovementListState, changes: Partial<MovementF
 export function withPage(state: MovementListState, page: number): MovementListState {
   return { ...state, page }
 }
+
+/** Whether any filter or the search narrows the list (the page does not). */
+export function hasFilters(state: MovementListState): boolean {
+  const { accountId, type, category, status, search } = state
+  return [accountId, type, category, status, search].some((value) => value !== undefined)
+}
+
+export type VisibleRange = { readonly from: number; readonly to: number; readonly total: number }
+
+/** Rows shown for "Mostrando X–Y de N"; `0–0` when the page has no rows. */
+export function visibleRange(page: number, pageSize: number, total: number): VisibleRange {
+  const from = (page - 1) * pageSize + 1
+  if (from > total) return { from: 0, to: 0, total }
+  return { from, to: Math.min(page * pageSize, total), total }
+}

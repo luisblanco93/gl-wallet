@@ -27,8 +27,10 @@ function page(items: Movement[], pageNumber: number, total: number): MovementPag
   return { items, page: pageNumber, pageSize: MOVEMENTS_PAGE_SIZE, total }
 }
 
-function setup(initial: MovementListState) {
+/** Stubs the API first: rendering starts the query immediately. */
+function setup(initial: MovementListState, stub: (api: ReturnType<typeof createTestProviders>['api']) => void) {
   const providers = createTestProviders()
+  stub(providers.api)
   const hook = renderHook((state: MovementListState) => useMovements(state), {
     wrapper: providers.wrapper,
     initialProps: initial,
@@ -52,8 +54,9 @@ describe('useMovements', () => {
   })
 
   it('keeps the previous rows on screen while the next page loads', async () => {
-    const { api, result, rerender } = setup({ page: 1 })
-    api.listMovements.mockResolvedValueOnce(page([movement('txn-1')], 1, 11))
+    const { api, result, rerender } = setup({ page: 1 }, (fake) =>
+      fake.listMovements.mockResolvedValueOnce(page([movement('txn-1')], 1, 11)),
+    )
     await waitFor(() => expect(result.current.status).toBe('ready'))
 
     api.listMovements.mockImplementationOnce(() => new Promise(() => {}))
@@ -65,8 +68,7 @@ describe('useMovements', () => {
   })
 
   it('reports an error with a retry', async () => {
-    const { api, result } = setup({ page: 1 })
-    api.listMovements.mockRejectedValue(networkError())
+    const { api, result } = setup({ page: 1 }, (fake) => fake.listMovements.mockRejectedValue(networkError()))
     await waitFor(() => expect(result.current.status).toBe('error'))
 
     api.listMovements.mockResolvedValue(page([movement('txn-1')], 1, 1))
@@ -77,13 +79,11 @@ describe('useMovements', () => {
   })
 
   it('tells "no movements yet" apart from "no results for these filters"', async () => {
-    const plain = setup({ page: 1 })
-    plain.api.listMovements.mockResolvedValue(page([], 1, 0))
+    const plain = setup({ page: 1 }, (fake) => fake.listMovements.mockResolvedValue(page([], 1, 0)))
     await waitFor(() => expect(plain.result.current.status).toBe('ready'))
     expect(plain.result.current.status === 'ready' && plain.result.current.empty).toBe('noMovements')
 
-    const filtered = setup({ type: 'income', page: 1 })
-    filtered.api.listMovements.mockResolvedValue(page([], 1, 0))
+    const filtered = setup({ type: 'income', page: 1 }, (fake) => fake.listMovements.mockResolvedValue(page([], 1, 0)))
     await waitFor(() => expect(filtered.result.current.status).toBe('ready'))
     expect(filtered.result.current.status === 'ready' && filtered.result.current.empty).toBe('noResults')
   })
