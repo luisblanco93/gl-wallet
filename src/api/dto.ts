@@ -9,6 +9,7 @@
  *   category: string|null, description: string|null, status, counterpartAccountId: string|null,
  *   transferId: string|null, createdAt }
  * - list: { transactions: transaction[], pagination: { page, pageSize, total } }
+ * - transfer: { id, status, from: transaction | null, to: transaction | null }
  */
 import { toCents } from '@/domain/money'
 import {
@@ -19,6 +20,7 @@ import {
   type Account,
   type Movement,
   type MovementType,
+  type Transfer,
   type User,
 } from '@/domain/types'
 import { untrustworthyResponse } from './errors'
@@ -125,6 +127,23 @@ export function parseMovement(value: unknown): Movement {
     description: asOptionalString(movement.description, '', 'transaction.description'),
     status: asOneOf(movement.status, MOVEMENT_STATUSES, 'transaction.status'),
     createdAt: asString(movement.createdAt, 'transaction.createdAt'),
+  }
+}
+
+function parseTransferSideOf(value: unknown, direction: 'in' | 'out', what: string): Movement {
+  const movement = parseMovement(value)
+  if (movement.type !== 'transfer' || movement.direction !== direction) reject(what)
+  return movement
+}
+
+/** `{ id, status, from, to }`: `from` is required (the app only tracks transfers it sent); `to` may be `null`. */
+export function parseTransfer(value: unknown): Transfer {
+  const transfer = asObject(value, 'transfer')
+  return {
+    id: asString(transfer.id, 'transfer.id'),
+    status: asOneOf(transfer.status, MOVEMENT_STATUSES, 'transfer.status'),
+    from: parseTransferSideOf(transfer.from, 'out', 'transfer.from'),
+    to: transfer.to === null || transfer.to === undefined ? null : parseTransferSideOf(transfer.to, 'in', 'transfer.to'),
   }
 }
 

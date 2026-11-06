@@ -44,6 +44,17 @@ export type Account = {
   readonly balance: Cents
 }
 
+/**
+ * A transfer as the API reports it: one movement per side, sharing the status.
+ * `to` is `null` when the destination belongs to another user (only the creation response includes it).
+ */
+export type Transfer = {
+  readonly id: string
+  readonly status: MovementStatus
+  readonly from: Movement
+  readonly to: Movement | null
+}
+
 export type User = {
   readonly id: string
   readonly email: string

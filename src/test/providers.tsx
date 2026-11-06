@@ -32,6 +32,8 @@ export function createFakeApi(): FakeApi {
     getMovement: vi.fn<WalletApi['getMovement']>(notStubbed('getMovement')),
     createMovement: vi.fn<WalletApi['createMovement']>(notStubbed('createMovement')),
     updateMovement: vi.fn<WalletApi['updateMovement']>(notStubbed('updateMovement')),
+    createTransfer: vi.fn<WalletApi['createTransfer']>(notStubbed('createTransfer')),
+    getTransfer: vi.fn<WalletApi['getTransfer']>(notStubbed('getTransfer')),
   }
 }
 

@@ -1,8 +1,17 @@
 import { toApiAmount } from '@/domain/money'
-import type { Account, Cents, Currency, Movement, MovementStatus, MovementType, User } from '@/domain/types'
+import type { Account, Cents, Currency, Movement, MovementStatus, MovementType, Transfer, User } from '@/domain/types'
 import type { ApiClient } from './client'
 import { ApiError } from './errors'
-import { parseAccount, parseList, parseMovement, parsePagination, parseToken, parseUser, readField } from './dto'
+import {
+  parseAccount,
+  parseList,
+  parseMovement,
+  parsePagination,
+  parseToken,
+  parseTransfer,
+  parseUser,
+  readField,
+} from './dto'
 
 export type Session = { readonly token: string; readonly user: User }
 
@@ -35,9 +44,16 @@ export type NewMovement = {
 
 export type MovementEdit = { readonly category: string; readonly description: string }
 
-/** An id as one path segment; empty, `.` or `..` would change the path, so they name no movement. */
+export type NewTransfer = {
+  readonly fromAccountId: string
+  readonly toAccountId: string
+  readonly amount: Cents
+  readonly description: string
+}
+
+/** An id as one path segment; empty, `.` or `..` would change the path, so they name no resource. */
 function idSegment(id: string): string {
-  if (id === '' || id === '.' || id === '..') throw new ApiError('notFound', { detail: 'Invalid movement id' })
+  if (id === '' || id === '.' || id === '..') throw new ApiError('notFound', { detail: 'Invalid id' })
   return encodeURIComponent(id)
 }
 
@@ -108,6 +124,23 @@ export function createWalletApi(client: Pick<ApiClient, 'request'>) {
         body: { category: edit.category, description: edit.description },
       })
       return parseMovement(readField(body, 'transaction'))
+    },
+
+    /** Never retried: a resent POST could create a second transfer. */
+    async createTransfer(transfer: NewTransfer): Promise<Transfer> {
+      const body = await request('POST', '/transfers', {
+        body: {
+          fromAccountId: transfer.fromAccountId,
+          toAccountId: transfer.toAccountId,
+          amount: toApiAmount(transfer.amount),
+          description: transfer.description,
+        },
+      })
+      return parseTransfer(readField(body, 'transfer'))
+    },
+
+    async getTransfer(id: string): Promise<Transfer> {
+      return parseTransfer(readField(await request('GET', `/transfers/${idSegment(id)}`), 'transfer'))
     },
   }
 }
