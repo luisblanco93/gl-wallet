@@ -37,7 +37,17 @@ Each module has constants named after the decision, so the numbers (1 s, 10 s) a
 - **One rate date.** USD and EUR rates have different update times; the estimate label shows the older one, so it never claims to be fresher than it is.
 - **Total in ARS fails closed.** `estimatedTotalArs` returns `'unknown'` if any account's available is unknown (loading or failed) and the home hides the total; a total that silently leaves out one account would mislead. Rejected: adding the settled balance for those accounts (overstates the total while a transfer is pending) and a partial total with a notice.
 - **The description limit moves to the domain.** `MAX_DESCRIPTION_LENGTH` (500, the API's limit) now lives in `src/domain/types.ts`; movements and transfers import the same constant.
-- **Elapsed time uses the server's `createdAt`.** Verified on 2026-11-06 that the WSL server clock and the Windows browser clock match to under a second, so the local setup does not distort the 10 s window.
+- **Elapsed time uses the server's `createdAt`.** Verified on 2026-11-06 that the WSL server clock and the Windows browser clock match to under a second, so the local setup does not distort the 10 s window. An unreadable `createdAt` (NaN) stops polling as delayed instead of polling forever.
+
+### Hooks details settled during implementation
+- **Last debit check at confirm.** `useCreateTransfer` receives the source's current available and runs `canDebit` before sending, as `useCreateMovement` does: the pending list can change, or fail and become unknown, between "Continuar" and confirm. This is the double-spend guard.
+- **Refetch before reporting.** On 201, 422 and `network` the mutation awaits the refetch of accounts, pending transfers and movements before it reports, so the screen shows the refreshed available (422) or whether the transfer went through (network), and a second transfer never validates against a stale available. `useSingleSubmitMutation`'s `onError` may now return that promise.
+- **Status query reads only the status.** `GET /transfers/:id` returns `to: null` for P2P (only the sender's side), so the destination-currency notice is computed from the creation response (`from` vs `to` with `canTransferBetween`).
+- **One evaluation for polling and screen.** The `refetchInterval` and the displayed phase call the same function with the same inputs; elapsed time runs to the latest response, successful or failed, so an outage still reaches the 10 s cap. The status query has `retry: false`.
+- **Refresh on `completed` and `failed`.** A failed transfer releases its pending amount too.
+- **FX cache.** `staleTime` and `gcTime` are both 10 min (the default `gcTime` of 5 min would drop the rates when leaving Home), and `retry: false`.
+- **FX wiring.** `src/api` keeps the wallet API and the FX client separate; `app` composes them into one `AppApi` provided to features. The FX client gets the plain `fetch` (no token) and sends no custom headers, so the GET needs no CORS preflight (dolarapi answers preflights with 405; verified 2026-11-06).
+- **Movement-list refresh has no hook test.** The decision is the tested `listShouldRefresh`; the wiring is checked in the manual run (5.2).
 
 ### Submission and tracking flow
 1. `validateTransfer` gates "Continuar"; the review renders the `TransferDraft`.
