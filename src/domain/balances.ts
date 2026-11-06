@@ -1,3 +1,4 @@
+import { signedAmount } from './money'
 import type { Account, Cents, Movement } from './types'
 
 /** Available or in-progress money that could not be computed (fail closed: debits are blocked). */
@@ -39,4 +40,12 @@ export function accountFigures(
     .reduce((sum, movement) => sum + movement.amount, 0)
 
   return { settled: account.balance, inProgress, available: account.balance - inProgress }
+}
+
+/** Available once a completed movement is recorded: lower after a debit, higher after a credit. */
+export function availableAfter(
+  available: Cents | Unknown,
+  movement: Pick<Movement, 'type' | 'direction' | 'amount'>,
+): Cents | Unknown {
+  return available === 'unknown' ? 'unknown' : available + signedAmount(movement)
 }

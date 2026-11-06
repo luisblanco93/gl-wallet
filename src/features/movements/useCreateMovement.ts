@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import type { NewMovement } from '@/api/endpoints'
 import type { Cents } from '@/domain/types'
 import { BlockedError } from '@/features/blockedError'
-import { refreshMoneyQueries } from '@/features/refreshMoneyQueries'
+import { refreshIfOutcomeUnknown, refreshMoneyQueries } from '@/features/refreshMoneyQueries'
 import { useSingleSubmitMutation } from '@/features/useSingleSubmitMutation'
 import { useWalletApi } from '@/features/walletApi'
 import { checkNewMovement } from './movementChecks'
@@ -24,5 +24,6 @@ export function useCreateMovement() {
       return api.createMovement(movement)
     },
     onSuccess: () => refreshMoneyQueries(queryClient),
+    onError: (error) => refreshIfOutcomeUnknown(queryClient, error),
   })
 }

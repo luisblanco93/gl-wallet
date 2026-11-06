@@ -99,10 +99,12 @@ export function parseAccount(value: unknown): Account {
 }
 
 function parseTransferSide(movement: JsonObject, type: MovementType) {
-  if (type !== 'transfer') return { direction: null, counterpartAccountId: null }
+  if (type !== 'transfer') return { direction: null, counterpartAccountId: null, transferId: null }
   return {
     direction: asOneOf(movement.direction, TRANSFER_DIRECTIONS, 'transaction.direction'),
     counterpartAccountId: asString(movement.counterpartAccountId, 'transaction.counterpartAccountId'),
+    // Display only: a missing receipt id hides the receipt instead of rejecting the response.
+    transferId: typeof movement.transferId === 'string' && movement.transferId !== '' ? movement.transferId : null,
   }
 }
 

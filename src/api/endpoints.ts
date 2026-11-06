@@ -1,6 +1,7 @@
 import { toApiAmount } from '@/domain/money'
 import type { Account, Cents, Currency, Movement, MovementStatus, MovementType, User } from '@/domain/types'
 import type { ApiClient } from './client'
+import { ApiError } from './errors'
 import { parseAccount, parseList, parseMovement, parsePagination, parseToken, parseUser, readField } from './dto'
 
 export type Session = { readonly token: string; readonly user: User }
@@ -33,6 +34,12 @@ export type NewMovement = {
 }
 
 export type MovementEdit = { readonly category: string; readonly description: string }
+
+/** An id as one path segment; empty, `.` or `..` would change the path, so they name no movement. */
+function idSegment(id: string): string {
+  if (id === '' || id === '.' || id === '..') throw new ApiError('notFound', { detail: 'Invalid movement id' })
+  return encodeURIComponent(id)
+}
 
 /** The API caps `pageSize` at 50; more pending transfers at once is not expected (see design). */
 export const PENDING_TRANSFERS_PAGE_SIZE = 50
@@ -78,6 +85,11 @@ export function createWalletApi(client: Pick<ApiClient, 'request'>) {
       return [...parsePage(body).items]
     },
 
+    async getMovement(id: string): Promise<Movement> {
+      const body = await request('GET', `/transactions/${idSegment(id)}`)
+      return parseMovement(readField(body, 'transaction'))
+    },
+
     async createMovement(movement: NewMovement): Promise<Movement> {
       const body = await request('POST', '/transactions', {
         body: {
@@ -92,7 +104,7 @@ export function createWalletApi(client: Pick<ApiClient, 'request'>) {
     },
 
     async updateMovement(id: string, edit: MovementEdit): Promise<Movement> {
-      const body = await request('PATCH', `/transactions/${encodeURIComponent(id)}`, {
+      const body = await request('PATCH', `/transactions/${idSegment(id)}`, {
         body: { category: edit.category, description: edit.description },
       })
       return parseMovement(readField(body, 'transaction'))

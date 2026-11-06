@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import type { NewAccount } from '@/api/endpoints'
 import { BlockedError } from '@/features/blockedError'
-import { refreshMoneyQueries } from '@/features/refreshMoneyQueries'
+import { refreshIfOutcomeUnknown, refreshMoneyQueries } from '@/features/refreshMoneyQueries'
 import { useSingleSubmitMutation } from '@/features/useSingleSubmitMutation'
 import { useWalletApi } from '@/features/walletApi'
 import { validateNewAccount } from './newAccount'
@@ -17,5 +17,6 @@ export function useCreateAccount() {
       return api.createAccount(valid.value)
     },
     onSuccess: () => refreshMoneyQueries(queryClient),
+    onError: (error) => refreshIfOutcomeUnknown(queryClient, error),
   })
 }

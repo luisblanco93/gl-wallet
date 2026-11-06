@@ -26,6 +26,8 @@ export type Movement = {
   readonly status: MovementStatus
   /** Set only for transfers: the other side's account id. */
   readonly counterpartAccountId: string | null
+  /** Shared by both sides of a transfer; shown as the receipt. No money rule reads it. */
+  readonly transferId: string | null
   readonly description: string
   /** ISO 8601 timestamp. */
   readonly createdAt: string

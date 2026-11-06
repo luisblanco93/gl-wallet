@@ -52,6 +52,15 @@ export function toSearchParams(state: MovementListState): URLSearchParams {
   return params
 }
 
+/** The filters a select can set (the search has its own field). */
+export type FilterKey = 'accountId' | 'type' | 'category' | 'status'
+
+/** A select's value as a filter change, validated like the URL: empty or unknown clears it. */
+export function filterChange(key: FilterKey, value: string): Partial<Omit<MovementFilters, 'search'>> {
+  const validated = readMovementList(new URLSearchParams([[key, value]]))[key]
+  return { [key]: validated } as Partial<Omit<MovementFilters, 'search'>>
+}
+
 /** Changing any filter or the search goes back to page 1. */
 export function withFilters(state: MovementListState, changes: Partial<MovementFilters>): MovementListState {
   return withoutUnset({ ...state, ...changes, page: FIRST_PAGE })
@@ -74,4 +83,9 @@ export function visibleRange(page: number, pageSize: number, total: number): Vis
   const from = (page - 1) * pageSize + 1
   if (from > total) return { from: 0, to: 0, total }
   return { from, to: Math.min(page * pageSize, total), total }
+}
+
+/** Number of pages for "Página X de N"; an empty list still has one page. */
+export function pageCount(total: number, pageSize: number): number {
+  return Math.max(1, Math.ceil(total / pageSize))
 }

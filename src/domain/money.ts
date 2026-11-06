@@ -64,11 +64,20 @@ const UNITS_FORMAT = new Intl.NumberFormat('es-AR', { useGrouping: 'always', max
  * prints `EUR` and an ASCII hyphen, and its output differs between engines.
  */
 export function formatMoney(cents: Cents, currency: Currency): string {
-  const absolute = Math.abs(cents)
-  const units = UNITS_FORMAT.format(Math.trunc(absolute / CENTS_PER_UNIT))
-  const decimals = String(absolute % CENTS_PER_UNIT).padStart(MAX_DECIMALS, '0')
   const sign = cents < 0 ? MINUS : ''
-  return `${sign}${SYMBOLS[currency]}${NBSP}${units},${decimals}`
+  return `${sign}${SYMBOLS[currency]}${NBSP}${formatAmountInput(Math.abs(cents))}`
+}
+
+/** A positive amount as the user types it (`20.000,00`), e.g. to tidy the field on blur. */
+export function formatAmountInput(cents: Cents): string {
+  const units = UNITS_FORMAT.format(Math.trunc(cents / CENTS_PER_UNIT))
+  const decimals = String(cents % CENTS_PER_UNIT).padStart(MAX_DECIMALS, '0')
+  return `${units},${decimals}`
+}
+
+/** The currency symbol shown inside amount fields. */
+export function currencySymbol(currency: Currency): string {
+  return SYMBOLS[currency]
 }
 
 /** Like `formatMoney`, with `+` before positive amounts (incomes). */

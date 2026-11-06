@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import type { Movement } from '@/domain/types'
 import { useWalletApi } from '@/features/walletApi'
-import { hasFilters, visibleRange, type MovementListState, type VisibleRange } from './filters'
+import { hasFilters, pageCount, visibleRange, type MovementListState, type VisibleRange } from './filters'
 
 export const MOVEMENTS_PAGE_SIZE = 10
 export const MOVEMENTS_KEY = ['movements'] as const
@@ -16,6 +16,9 @@ export type MovementsResult =
       readonly status: 'ready'
       readonly items: readonly Movement[]
       readonly range: VisibleRange
+      readonly page: number
+      readonly pageCount: number
+      /** Set only when nothing matches at all; a page past the end is not empty, just out of range. */
       readonly empty: EmptyReason | null
       /** A new page or filter is loading while the previous rows stay on screen. */
       readonly isUpdating: boolean
@@ -34,11 +37,13 @@ export function useMovements(state: MovementListState, pageSize: number = MOVEME
   if (query.isError) return { status: 'error', error: query.error, retry: () => void query.refetch() }
 
   const { items, page, total } = query.data
-  const empty = items.length > 0 ? null : hasFilters(state) ? 'noResults' : 'noMovements'
+  const empty = total > 0 ? null : hasFilters(state) ? 'noResults' : 'noMovements'
   return {
     status: 'ready',
     items,
     range: visibleRange(page, pageSize, total),
+    page,
+    pageCount: pageCount(total, pageSize),
     empty,
     isUpdating: query.isPlaceholderData,
   }
