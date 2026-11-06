@@ -287,3 +287,60 @@ describe('updateMovement', () => {
     expect(request.mock.calls[0]?.[1]).toBe('/transactions/a%2Fb%3Fc')
   })
 })
+
+const TRANSFER_IN_DTO = {
+  ...TRANSFER_OUT_DTO,
+  id: 'transfer-1-in',
+  accountId: 'acc-4',
+  direction: 'in',
+  currency: 'USD',
+  counterpartAccountId: 'acc-1',
+}
+
+describe('createTransfer', () => {
+  it('sends the amount as the API decimal and keeps the destination currency', async () => {
+    const { api, request } = fakeClient({
+      transfer: { id: 'transfer-1', status: 'pending', from: TRANSFER_OUT_DTO, to: TRANSFER_IN_DTO },
+    })
+
+    const transfer = await api.createTransfer({
+      fromAccountId: 'acc-1',
+      toAccountId: 'acc-4',
+      amount: 500_000,
+      description: 'Regalo',
+    })
+
+    expect(request).toHaveBeenCalledWith('POST', '/transfers', {
+      body: { fromAccountId: 'acc-1', toAccountId: 'acc-4', amount: 5000, description: 'Regalo' },
+    })
+    expect(transfer).toMatchObject({
+      id: 'transfer-1',
+      status: 'pending',
+      from: { accountId: 'acc-1', amount: 50_000_000, currency: 'ARS', createdAt: TRANSFER_OUT_DTO.createdAt },
+      to: { accountId: 'acc-4', currency: 'USD' },
+    })
+  })
+})
+
+describe('getTransfer', () => {
+  it("reads the status by encoded id; the other user's side is absent in P2P", async () => {
+    const { api, request } = fakeClient({
+      transfer: { id: 'transfer-1', status: 'completed', from: { ...TRANSFER_OUT_DTO, status: 'completed' }, to: null },
+    })
+
+    const transfer = await api.getTransfer('transfer 1')
+
+    expect(request).toHaveBeenCalledWith('GET', '/transfers/transfer%201')
+    expect(transfer).toMatchObject({ id: 'transfer-1', status: 'completed', to: null })
+  })
+
+  it('rejects a transfer without its outgoing side or with an unknown status', async () => {
+    const withoutSource = fakeClient({ transfer: { id: 'transfer-1', status: 'pending', from: null, to: null } })
+    expect((await rejection(withoutSource.api.getTransfer('transfer-1'))).kind).toBe('server')
+
+    const unknownStatus = fakeClient({
+      transfer: { id: 'transfer-1', status: 'settled', from: TRANSFER_OUT_DTO, to: null },
+    })
+    expect((await rejection(unknownStatus.api.getTransfer('transfer-1'))).kind).toBe('server')
+  })
+})
