@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { networkError } from '@/api/errors'
 import type { Movement, Transfer } from '@/domain/types'
-import { createTestProviders } from '@/test/providers'
+import { createTestProviders, type TestProviders } from '@/test/providers'
 import { useTransferStatus } from './useTransferStatus'
 
 function createdTransfer(createdAtMs: number): Transfer {
@@ -23,24 +23,25 @@ function createdTransfer(createdAtMs: number): Transfer {
   return { id: 'transfer-1', status: 'pending', from, to: null }
 }
 
-function setup(created: Transfer) {
+/** The fake API is stubbed before the hook mounts: its first status request runs on mount. */
+function setup(created: Transfer, stub: (api: TestProviders['api']) => void) {
   const providers = createTestProviders()
+  stub(providers.api)
+  const invalidate = vi.spyOn(providers.queryClient, 'invalidateQueries')
   const hook = renderHook(() => useTransferStatus(created), { wrapper: providers.wrapper })
-  return { ...providers, ...hook }
+  return { ...providers, ...hook, invalidate }
 }
 
 describe('useTransferStatus', () => {
   it('shows processing, then completed once the API reports it, and refreshes balances', async () => {
     const created = createdTransfer(Date.now())
-    const providers = createTestProviders()
-    providers.api.getTransfer.mockResolvedValue({ ...created, status: 'completed' })
-    const invalidate = vi.spyOn(providers.queryClient, 'invalidateQueries')
-
-    const { result } = renderHook(() => useTransferStatus(created), { wrapper: providers.wrapper })
+    const { api, result, invalidate } = setup(created, (fake) =>
+      fake.getTransfer.mockResolvedValue({ ...created, status: 'completed' }),
+    )
 
     expect(result.current).toBe('processing')
     await waitFor(() => expect(result.current).toBe('completed'))
-    expect(providers.api.getTransfer).toHaveBeenCalledWith('transfer-1')
+    expect(api.getTransfer).toHaveBeenCalledWith('transfer-1')
     await waitFor(() =>
       expect(invalidate.mock.calls.map(([filters]) => filters?.queryKey)).toEqual(
         expect.arrayContaining([['accounts'], ['pendingTransfers'], ['movements']]),
@@ -50,18 +51,27 @@ describe('useTransferStatus', () => {
 
   it('reports delayed when the transfer is still pending 10 s after creation', async () => {
     const created = createdTransfer(Date.now() - 11_000)
-    const { api, result } = setup(created)
-    api.getTransfer.mockResolvedValue(created)
+    const { result } = setup(created, (fake) => fake.getTransfer.mockResolvedValue(created))
 
     await waitFor(() => expect(result.current).toBe('delayed'))
   })
 
-  it('keeps processing when a status request fails before 10 s', async () => {
+  it('keeps processing and polling when a status request fails before 10 s', async () => {
     const created = createdTransfer(Date.now())
-    const { api, result } = setup(created)
-    api.getTransfer.mockRejectedValue(networkError())
+    const { api, result } = setup(created, (fake) => fake.getTransfer.mockRejectedValue(networkError()))
 
-    await waitFor(() => expect(api.getTransfer).toHaveBeenCalled())
-    await waitFor(() => expect(result.current).toBe('processing'))
+    // The second call comes from the next 1 s tick, after the first one failed.
+    await waitFor(() => expect(api.getTransfer).toHaveBeenCalledTimes(2), { timeout: 3000 })
+    expect(result.current).toBe('processing')
+  })
+
+  it('stops as failed when the API reports a failed transfer, and refreshes balances', async () => {
+    const created = createdTransfer(Date.now())
+    const { result, invalidate } = setup(created, (fake) =>
+      fake.getTransfer.mockResolvedValue({ ...created, status: 'failed' }),
+    )
+
+    await waitFor(() => expect(result.current).toBe('failed'))
+    await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: ['accounts'] }))
   })
 })

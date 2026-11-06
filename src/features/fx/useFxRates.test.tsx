@@ -17,6 +17,19 @@ describe('useFxRates', () => {
     await waitFor(() => expect(result.current).toEqual(RATES))
   })
 
+  it('reuses the rates within 10 minutes instead of asking again', async () => {
+    const { api, wrapper } = createTestProviders()
+    api.getFxRates.mockResolvedValue(RATES)
+
+    const first = renderHook(() => useFxRates(), { wrapper })
+    await waitFor(() => expect(first.result.current).toEqual(RATES))
+    first.unmount()
+    const second = renderHook(() => useFxRates(), { wrapper })
+
+    expect(second.result.current).toEqual(RATES)
+    expect(api.getFxRates).toHaveBeenCalledOnce()
+  })
+
   it('returns undefined when the FX source fails, without retrying', async () => {
     const { api, queryClient, wrapper } = createTestProviders()
     api.getFxRates.mockRejectedValue(networkError())

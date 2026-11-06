@@ -44,11 +44,26 @@ describe('getFxRates', () => {
     expect(rates.updatedAt).toBe('2026-11-05T17:00:00.000Z')
   })
 
-  it('rejects a quote without numeric buy and sell, or without a valid date', async () => {
+  it('sends no token, cookies, referrer or custom headers to the external source', async () => {
+    const fetch = fakeFetch(
+      () => Promise.resolve(jsonResponse(USD_QUOTE)),
+      () => Promise.resolve(jsonResponse(EUR_QUOTE)),
+    )
+
+    await createFxApi(fetch).getFxRates()
+
+    for (const [, init] of fetch.mock.calls) {
+      expect(init).toEqual({ credentials: 'omit', referrerPolicy: 'no-referrer' })
+    }
+  })
+
+  it('rejects a quote without numeric buy and sell, without a valid date, or out of any plausible range', async () => {
     for (const malformed of [
       { ...USD_QUOTE, compra: '1520' },
       { ...USD_QUOTE, venta: undefined },
       { ...USD_QUOTE, fechaActualizacion: 'ayer' },
+      { ...USD_QUOTE, compra: 1e-300 },
+      { ...USD_QUOTE, venta: 1e300 },
     ]) {
       const fetch = fakeFetch(
         () => Promise.resolve(jsonResponse(malformed)),
