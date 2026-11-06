@@ -34,9 +34,17 @@ function isSession(value: unknown): value is Session {
   return isString(id) && isString(email) && isString(name)
 }
 
+function readItem(storage: SessionStorageLike): string | null {
+  try {
+    return storage.getItem(SESSION_STORAGE_KEY)
+  } catch {
+    return null
+  }
+}
+
 /** A missing, corrupt or wrong-shaped value means signed out; a bad value is removed. */
 function readStoredSession(storage: SessionStorageLike): Session | null {
-  const raw = storage.getItem(SESSION_STORAGE_KEY)
+  const raw = readItem(storage)
   if (raw === null) return null
   try {
     const parsed: unknown = JSON.parse(raw)
@@ -44,7 +52,7 @@ function readStoredSession(storage: SessionStorageLike): Session | null {
   } catch {
     // Corrupt JSON: handled below like any wrong shape.
   }
-  storage.removeItem(SESSION_STORAGE_KEY)
+  tryStorage(() => storage.removeItem(SESSION_STORAGE_KEY))
   return null
 }
 

@@ -17,9 +17,9 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 
 ## 3. App wiring
 
-- [ ] 3.1 Session context with `sessionStorage`, logout clearing the query cache, global 401 handling
+- [x] 3.1 Session context with `sessionStorage`, logout clearing the query cache, global 401 handling
 - [x] 3.2 `QueryClient` retry policy (no retry on 4xx, mutations never retried)
-- [ ] 3.3 Router with protected routes: login, home, movements; URL-backed filters
+- [x] 3.3 Router with protected routes: login, home, movements; URL-backed filters
 
 ## 4. Feature hooks
 
