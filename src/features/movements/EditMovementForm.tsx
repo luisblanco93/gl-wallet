@@ -1,11 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { ApiError } from '@/api/errors'
-import type { Movement } from '@/domain/types'
+import { MAX_DESCRIPTION_LENGTH, type Movement } from '@/domain/types'
 import { BlockedError } from '@/features/blockedError'
 import { Button } from '@/shared/ui/Button'
 import { Alert } from '@/shared/ui/Feedback'
 import { LockedField, SelectField, TextField } from '@/shared/ui/Field'
-import { MAX_DESCRIPTION_LENGTH } from './movementChecks'
 import { editCategoryOptions } from './movementDetailView'
 
 type EditField = 'category' | 'description'

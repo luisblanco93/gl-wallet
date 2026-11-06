@@ -4,6 +4,9 @@ export type Currency = (typeof CURRENCIES)[number]
 /** Integer number of cents. API decimals are converted only in `src/api` (see `toCents` / `toApiAmount`). */
 export type Cents = number
 
+/** The API rejects longer descriptions (400) on movements and transfers. */
+export const MAX_DESCRIPTION_LENGTH = 500
+
 export const MOVEMENT_TYPES = ['income', 'expense', 'transfer'] as const
 export type MovementType = (typeof MOVEMENT_TYPES)[number]
 export const TRANSFER_DIRECTIONS = ['in', 'out'] as const

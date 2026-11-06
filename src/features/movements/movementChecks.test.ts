@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { NewMovement } from '@/api/endpoints'
-import type { Movement } from '@/domain/types'
-import { MAX_DESCRIPTION_LENGTH, checkMovementEdit, checkNewMovement } from './movementChecks'
+import { MAX_DESCRIPTION_LENGTH, type Movement } from '@/domain/types'
+import { checkMovementEdit, checkNewMovement } from './movementChecks'
 
 const EXPENSE: NewMovement = {
   accountId: 'acc-2',

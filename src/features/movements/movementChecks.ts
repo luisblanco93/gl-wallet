@@ -2,9 +2,7 @@ import type { MovementEdit, NewMovement } from '@/api/endpoints'
 import { categoriesFor } from '@/domain/categories'
 import { editBlockReason } from '@/domain/editability'
 import { canDebit } from '@/domain/funds'
-import type { Cents, Movement } from '@/domain/types'
-
-export const MAX_DESCRIPTION_LENGTH = 500
+import { MAX_DESCRIPTION_LENGTH, type Cents, type Movement } from '@/domain/types'
 
 export type MovementProblem =
   | 'invalidAmount'

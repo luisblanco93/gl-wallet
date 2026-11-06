@@ -5,7 +5,7 @@ import { ApiError } from '@/api/errors'
 import { availableAfter } from '@/domain/balances'
 import { categoriesFor, categoryLabel } from '@/domain/categories'
 import { currencySymbol, formatAmountInput, formatMoney, formatSignedMoney, parseAmount, signedAmount } from '@/domain/money'
-import type { Movement } from '@/domain/types'
+import { MAX_DESCRIPTION_LENGTH, type Movement } from '@/domain/types'
 import { AccountOption } from '@/features/accounts/AccountOption'
 import { toAccountCardView } from '@/features/accounts/accountView'
 import { useAccounts, type AccountView } from '@/features/accounts/useAccounts'
@@ -16,7 +16,6 @@ import { Alert, LoadingRegion, Skeleton, StateMessage } from '@/shared/ui/Feedba
 import { MoneyInput, SelectField, TextField } from '@/shared/ui/Field'
 import { PageTitle } from '@/shared/ui/PageTitle'
 import { SegmentedControl, type Choice } from '@/shared/ui/SegmentedControl'
-import { MAX_DESCRIPTION_LENGTH } from './movementChecks'
 import {
   reviewDraft,
   withType,
