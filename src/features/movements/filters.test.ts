@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readMovementList, toSearchParams, withFilters, withPage } from './filters'
+import { hasFilters, readMovementList, toSearchParams, visibleRange, withFilters, withPage } from './filters'
 
 const DEFAULT = { page: 1 }
 
@@ -71,5 +71,31 @@ describe('withFilters', () => {
 describe('withPage', () => {
   it('keeps the filters and changes the page', () => {
     expect(withPage({ type: 'income', page: 1 }, 3)).toEqual({ type: 'income', page: 3 })
+  })
+})
+
+describe('visibleRange', () => {
+  it('gives the first and last row shown and the total', () => {
+    expect(visibleRange(1, 10, 21)).toEqual({ from: 1, to: 10, total: 21 })
+    expect(visibleRange(2, 10, 21)).toEqual({ from: 11, to: 20, total: 21 })
+    expect(visibleRange(3, 10, 21)).toEqual({ from: 21, to: 21, total: 21 })
+  })
+
+  it('shows nothing when there are no rows or the page is past the end', () => {
+    expect(visibleRange(1, 10, 0)).toEqual({ from: 0, to: 0, total: 0 })
+    expect(visibleRange(9, 10, 21)).toEqual({ from: 0, to: 0, total: 21 })
+  })
+})
+
+describe('hasFilters', () => {
+  it('is false for the plain list on any page', () => {
+    expect(hasFilters({ page: 1 })).toBe(false)
+    expect(hasFilters({ page: 3 })).toBe(false)
+  })
+
+  it('is true when any filter or the search is set', () => {
+    expect(hasFilters({ accountId: 'acc-1', page: 1 })).toBe(true)
+    expect(hasFilters({ search: 'super', page: 1 })).toBe(true)
+    expect(hasFilters({ status: 'pending', page: 1 })).toBe(true)
   })
 })
