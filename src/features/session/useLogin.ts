@@ -12,6 +12,7 @@ export function useLogin() {
   const api = useWalletApi()
   const { signIn } = useSession()
   return useSingleSubmitMutation({
+    mutationKey: ['login'],
     mutationFn: ({ email, password }: Credentials) => {
       const valid = validateCredentials(email, password)
       if (!valid.ok) return Promise.reject(new BlockedError('invalidFields'))

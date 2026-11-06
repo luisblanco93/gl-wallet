@@ -18,6 +18,7 @@ export function useCreateMovement() {
   const api = useWalletApi()
   const queryClient = useQueryClient()
   return useSingleSubmitMutation({
+    mutationKey: ['createMovement'],
     mutationFn: ({ movement, available }: CreateMovementInput) => {
       const check = checkNewMovement(movement, available)
       if (!check.ok) return Promise.reject(new BlockedError(check.problem))

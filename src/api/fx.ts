@@ -6,10 +6,20 @@ export const FX_BASE_URL = 'https://dolarapi.com/v1'
 const USD_PATH = '/dolares/oficial'
 const EUR_PATH = '/cotizaciones/eur'
 
+/**
+ * ARS per USD/EUR outside this range is not a quote but bad data; a value such as 1e300 would
+ * turn an estimate into Infinity or an unsafe number. Wide on purpose: it rejects absurd, not unusual.
+ */
+const MIN_PLAUSIBLE_RATE = 0.01
+const MAX_PLAUSIBLE_RATE = 10_000_000
+
+/** No cookies and no referrer for a third party; neither option adds a header, so there is still no preflight. */
+const FX_REQUEST: RequestInit = { credentials: 'omit', referrerPolicy: 'no-referrer' }
+
 type Quote = { readonly rate: number; readonly updatedAtMs: number }
 
-function isPositiveNumber(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value) && value > 0
+function isPlausibleRate(value: unknown): value is number {
+  return typeof value === 'number' && value > MIN_PLAUSIBLE_RATE && value < MAX_PLAUSIBLE_RATE
 }
 
 /** `{ compra, venta, fechaActualizacion }`; anything else makes the whole estimate unavailable. */
@@ -17,7 +27,7 @@ function parseQuote(body: unknown, path: string): Quote {
   const quote = typeof body === 'object' && body !== null ? (body as Readonly<Record<string, unknown>>) : {}
   const { compra, venta, fechaActualizacion } = quote
   const updatedAtMs = typeof fechaActualizacion === 'string' ? Date.parse(fechaActualizacion) : Number.NaN
-  if (!isPositiveNumber(compra) || !isPositiveNumber(venta) || Number.isNaN(updatedAtMs)) {
+  if (!isPlausibleRate(compra) || !isPlausibleRate(venta) || Number.isNaN(updatedAtMs)) {
     throw untrustworthyResponse(`Unexpected FX data: ${path}`)
   }
   return { rate: referenceRate(compra, venta), updatedAtMs }
@@ -27,7 +37,7 @@ function parseQuote(body: unknown, path: string): Quote {
 async function fetchQuote(fetch: typeof globalThis.fetch, path: string): Promise<Quote> {
   let response: Response
   try {
-    response = await fetch(`${FX_BASE_URL}${path}`)
+    response = await fetch(`${FX_BASE_URL}${path}`, FX_REQUEST)
   } catch {
     throw networkError()
   }

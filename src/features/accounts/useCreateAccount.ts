@@ -11,6 +11,7 @@ export function useCreateAccount() {
   const api = useWalletApi()
   const queryClient = useQueryClient()
   return useSingleSubmitMutation({
+    mutationKey: ['createAccount'],
     mutationFn: (account: NewAccount) => {
       const valid = validateNewAccount(account)
       if (!valid.ok) return Promise.reject(new BlockedError(valid.error))

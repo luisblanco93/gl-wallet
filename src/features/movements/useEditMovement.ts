@@ -14,6 +14,7 @@ export function useEditMovement() {
   const api = useWalletApi()
   const queryClient = useQueryClient()
   return useSingleSubmitMutation({
+    mutationKey: ['editMovement'],
     mutationFn: ({ movement, edit }: EditMovementInput) => {
       const check = checkMovementEdit(movement, edit)
       if (!check.ok) return Promise.reject(new BlockedError(check.problem))
