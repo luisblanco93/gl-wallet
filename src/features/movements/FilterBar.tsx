@@ -121,7 +121,7 @@ export function ActiveFilters({
           type="button"
           onClick={() => onRemove(chip.key)}
           aria-label={`Quitar filtro ${chip.label}`}
-          className="inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-pill border-[1.5px] border-primary-accent bg-primary-tint py-1 pl-3.5 pr-2 text-sm font-semibold text-primary-active hover:bg-[#ffe1d0]"
+          className="inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-pill border-[1.5px] border-primary-accent bg-primary-tint py-1 pl-3.5 pr-2 text-sm font-semibold text-primary-active hover:bg-primary-accent/15"
         >
           <span className="truncate">{chip.label}</span>
           <Icon as={X} size={14} />

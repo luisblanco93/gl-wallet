@@ -95,6 +95,22 @@ Filters and page live in the URL query string so a filtered view survives reload
 - **Unknown outcome after a network error:** creating a movement or an account that fails without a response may have been recorded anyway (mutations never retry and the API has no idempotency key). The form keeps its values, refetches balances and movements, and asks the user to check Movimientos (or the balances) before trying again, as `DECISIONS.md` asks for transfers.
 - **Left out:** the handoff's `StatusTimeline` for a pending transfer in the detail. It is not in this change's specs; the badge "Pendiente" and the row note already say the money is in progress.
 
+### Home finishing pass
+
+- At the user's request, remove the separate settled-balance line introduced in polish. Cards show available and in-progress money only; when available is unknown, keep the existing warning and retry. The domain still uses settled balances internally. This replaces the extra secondary figure to keep the card focused on available money.
+- Keep the desktop layout and handoff identity. On mobile, place the two existing header actions in one compact row; keep DOM and keyboard order unchanged. At the user's request, restore the cards' original padding, gaps and history-link height. The separate "Ver todos" link retains its larger touch target.
+- Query recent movements and accounts in parallel, but keep recent rows as loading placeholders until own-account names resolve. Preserve external P2P IDs and existing status labels required by the specs.
+- Keep the compact shell navigation until 1024px, because the desktop navigation and user details overflow at 760px. Long account names and amounts wrap without truncation, reusing the existing `money-wrap` utility; no values or money rules change.
+
+### User-selectable appearance
+
+- User-approved scope: keep both proposed palettes and font pairings, selected with a native "Tema" dropdown beside the profile. Default: Bosque y marfil (Fraunces 600 / Manrope 400, 600, 700); alternative: Azul y porcelana (Sora 600 / Source Sans 3 400, 600, 700). This supersedes the Caprasimo / Figtree font choice above. Google Fonts remains the existing font delivery mechanism; no new dependency.
+- Implement with CSS semantic tokens on the document root and a small app-level selector. Initialize the validated `greelow-theme` localStorage preference before React renders; store only `bosque` or `azul`. Storage is optional: failure does not prevent changing the current page's appearance. Keep the theme on logout; it contains no session or financial data.
+- Preserve sizes, spacing and card heights. Reserve the existing two-line mobile account explanation when the narrower font would fit on one line. On narrow screens show the selector with a compact accessible label and retain the profile name for assistive technology when space requires hiding its visual text.
+- Replace remaining decorative fixed colors with existing theme tokens so avatars, navigation, skeletons, chips and success feedback follow the selection. Keep financial status colors and cues consistent.
+- Rejected: a theme context or external theme library (one control and document-level CSS suffice), an API preference (the mock API has no appearance setting), and keeping preview-only HTML as the implementation (it cannot preserve working app interactions).
+- Verification: the appearance detector's advisory about Fraunces being common is intentionally retained because it is part of the pairings the user requested after reviewing both previews. It is not an accessibility defect.
+
 ## Risks / Trade-offs
 
 - **Pending transfers beyond 50**: the API caps `pageSize` at 50. Available is computed from one page of pending outgoing transfers. Since transfers settle in ~1.5 s, more than 50 pending at once is unrealistic; documented, not handled.

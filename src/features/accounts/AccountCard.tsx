@@ -20,10 +20,10 @@ export function AccountCard({
     <article aria-label={account.name} className="flex h-full min-w-0 flex-col gap-4 rounded-xl bg-surface p-6">
       <div className="flex items-center gap-3">
         <div className="flex min-w-0 flex-col">
-          <h3 className="text-subtitle">{account.name}</h3>
+          <h3 className="break-words text-subtitle">{account.name}</h3>
           <span className="text-caption text-ink-muted">{account.currencyName}</span>
         </div>
-        <span className="ml-auto rounded-pill bg-paper px-2.5 py-0.5 text-xs font-bold tracking-wide text-ink-soft">
+        <span className="ml-auto shrink-0 rounded-pill bg-paper px-2.5 py-0.5 text-xs font-bold tracking-wide text-ink-soft">
           {account.code}
         </span>
       </div>
@@ -37,7 +37,7 @@ export function AccountCard({
             Disponible
           </span>
           {availability.kind === 'known' ? (
-            <span className="text-amount-xl money tracking-[-0.01em]">{availability.label}</span>
+            <span className="text-amount-xl money-wrap tracking-[-0.01em]">{availability.label}</span>
           ) : (
             <>
               <span className="sr-only">Calculando disponible…</span>
@@ -51,7 +51,7 @@ export function AccountCard({
         <div className="flex items-start gap-2 rounded-[18px] border-[1.5px] border-dashed border-pending-border bg-pending-bg px-3.5 py-2.5 text-pending">
           <Icon as={Clock} size={16} className="mt-0.5" />
           <div className="flex flex-col">
-            <span className="text-sm font-bold money">En proceso: {account.pendingLabel}</span>
+            <span className="text-sm font-bold money-wrap">En proceso: {account.pendingLabel}</span>
             <span className="text-caption">Ya está descontado del disponible.</span>
           </div>
         </div>

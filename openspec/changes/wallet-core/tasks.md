@@ -42,3 +42,9 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 
 - [x] 6.1 `npm run typecheck && npm run lint && npm test` green
 - [x] 6.2 Manual run against the mock API with `demo@example.com`: every scenario in the specs
+
+## 7. User-selectable appearance
+
+- [x] 7.1 Native header theme dropdown, validated optional persistence, startup restoration and behavior tests
+- [x] 7.2 Both approved palettes and font pairings, themed decorative colors and unchanged card geometry
+- [x] 7.3 Typecheck, lint, tests, build, strict spec validation, browser checks and product/security review

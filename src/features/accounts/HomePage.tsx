@@ -44,11 +44,20 @@ export function HomePage() {
           <span className="text-body text-ink-muted">Hola, {userName}</span>
           <PageTitle>Tu dinero</PageTitle>
         </div>
-        <div className="flex flex-wrap gap-2.5">
-          <Button icon={ArrowLeftRight} onClick={() => navigate('/transferir')}>
+        <div className="grid w-full grid-cols-2 gap-2.5 md:flex md:w-auto">
+          <Button
+            className="min-w-0 max-md:px-2 max-md:text-sm max-md:[&>svg]:hidden"
+            icon={ArrowLeftRight}
+            onClick={() => navigate('/transferir')}
+          >
             Transferir
           </Button>
-          <Button variant="secondary" icon={Plus} onClick={() => navigate('/movimientos/nuevo')}>
+          <Button
+            className="min-w-0 max-md:px-2 max-md:text-sm max-md:[&>svg]:hidden"
+            variant="secondary"
+            icon={Plus}
+            onClick={() => navigate('/movimientos/nuevo')}
+          >
             Nuevo movimiento
           </Button>
         </div>
@@ -70,7 +79,7 @@ export function HomePage() {
                 <h2 id="balances-title" className="text-title">
                   Saldos por cuenta
                 </h2>
-                <p className="text-caption text-ink-muted">Cada moneda se muestra por separado: no se suman entre sí.</p>
+                  <p className="text-caption text-ink-muted max-md:min-h-[2lh]">Cada moneda se muestra por separado: no se suman entre sí.</p>
               </div>
               {!isAddingAccount && (
                 <Button
@@ -97,7 +106,10 @@ export function HomePage() {
               <AccountCards accounts={accounts.accounts} pending={accounts.pending} onRetryPending={accounts.retryPending} />
             )}
           </section>
-          <RecentMovements ownAccounts={accounts.status === 'ready' ? accounts.accounts : []} />
+          <RecentMovements
+            accountsLoading={accounts.status === 'loading'}
+            ownAccounts={accounts.status === 'ready' ? accounts.accounts : []}
+          />
         </>
       )}
     </>
@@ -142,7 +154,7 @@ function AccountCardsSkeleton() {
   )
 }
 
-function RecentMovements({ ownAccounts }: { ownAccounts: readonly AccountView[] }) {
+function RecentMovements({ ownAccounts, accountsLoading }: { ownAccounts: readonly AccountView[]; accountsLoading: boolean }) {
   const navigate = useNavigate()
   const movements = useMovements(FIRST_PAGE, RECENT_COUNT)
   const [params, setParams] = useSearchParams()
@@ -173,12 +185,14 @@ function RecentMovements({ ownAccounts }: { ownAccounts: readonly AccountView[] 
         <h2 id="recent-title" className="text-title">
           Últimos movimientos
         </h2>
-        <Link to="/movimientos" className="inline-flex items-center gap-1.5 rounded-pill px-1 text-sm font-bold text-link hover:underline">
+        <Link to="/movimientos" className="-my-3 inline-flex min-h-11 items-center gap-1.5 rounded-pill px-1 text-sm font-bold text-link hover:underline">
           Ver todos
           <Icon as={ArrowRight} size={16} />
         </Link>
       </div>
-      {movements.status === 'loading' && <TransactionRowSkeletonList rows={RECENT_COUNT} />}
+      {(movements.status === 'loading' || (accountsLoading && movements.status === 'ready')) && (
+        <TransactionRowSkeletonList rows={RECENT_COUNT} />
+      )}
       {movements.status === 'error' && (
         <StateMessage
           tone="error"
@@ -188,7 +202,7 @@ function RecentMovements({ ownAccounts }: { ownAccounts: readonly AccountView[] 
           action={{ label: 'Reintentar', icon: RotateCw, onClick: movements.retry }}
         />
       )}
-      {movements.status === 'ready' &&
+      {!accountsLoading && movements.status === 'ready' &&
         (movements.empty ? (
           <StateMessage
             title="Aún no tienes movimientos"

@@ -113,12 +113,12 @@ export function TransactionRowSkeletonList({ rows = 8, label = 'Cargando movimie
       <span className="sr-only">{label}</span>
       {Array.from({ length: rows }, (_, index) => (
         <div key={index} aria-hidden="true" className="grid grid-cols-[40px_1fr_auto] items-center gap-3.5 px-2.5 py-3">
-          <span className="size-10 rounded-full bg-[#d8cab0] motion-safe:animate-pulse" />
+          <span className="size-10 rounded-full bg-neutral-300 motion-safe:animate-pulse" />
           <span className="flex flex-col gap-2">
-            <span className="h-3.5 w-2/5 rounded-pill bg-[#d8cab0] motion-safe:animate-pulse" />
-            <span className="h-3 w-1/4 rounded-pill bg-[#d8cab0] motion-safe:animate-pulse" />
+            <span className="h-3.5 w-2/5 rounded-pill bg-neutral-300 motion-safe:animate-pulse" />
+            <span className="h-3 w-1/4 rounded-pill bg-neutral-300 motion-safe:animate-pulse" />
           </span>
-          <span className="h-4 w-24 rounded-pill bg-[#d8cab0] motion-safe:animate-pulse" />
+          <span className="h-4 w-24 rounded-pill bg-neutral-300 motion-safe:animate-pulse" />
         </div>
       ))}
     </div>
