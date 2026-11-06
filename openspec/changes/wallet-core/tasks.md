@@ -8,7 +8,7 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 - [x] 1.2 `balances`: tests for settled / in progress / available with and without pending outgoing transfers; then implement
 - [x] 1.3 `funds`: tests for `canDebit` (below, equal, above available); then implement
 - [x] 1.4 `editability` and `categories`: tests for editable fields per movement type and selectable categories; then implement
-- [ ] 1.5 `transferLabel`: tests for own-account and foreign counterpart; then implement
+- [x] 1.5 `transferLabel`: tests for own-account and foreign counterpart; then implement
 
 ## 2. API layer
 
