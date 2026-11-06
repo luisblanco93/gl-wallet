@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   formatMoney,
+  formatSignedMoney,
   parseAmount,
   signedAmount,
   toApiAmount,
@@ -129,6 +130,17 @@ describe('formatMoney', () => {
     expect(formatMoney(5, 'ARS')).toBe(`$${NBSP}0,05`)
     expect(formatMoney(0, 'ARS')).toBe(`$${NBSP}0,00`)
     expect(formatMoney(-0, 'ARS')).toBe(`$${NBSP}0,00`)
+  })
+})
+
+describe('formatSignedMoney', () => {
+  it('prefixes incomes with a plus sign', () => {
+    expect(formatSignedMoney(85000000, 'ARS')).toBe(`+$${NBSP}850.000,00`)
+  })
+
+  it('keeps the minus sign for debits and no sign for zero', () => {
+    expect(formatSignedMoney(-2000000, 'ARS')).toBe(`${MINUS}$${NBSP}20.000,00`)
+    expect(formatSignedMoney(0, 'USD')).toBe(`US$${NBSP}0,00`)
   })
 })
 

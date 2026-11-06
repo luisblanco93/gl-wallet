@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CATEGORY_IDS, categoryLabel, selectableCategories } from './categories'
+import { CATEGORY_IDS, categoriesFor, categoryLabel, selectableCategories } from './categories'
 
 describe('categories', () => {
   it('knows the categories the API accepts', () => {
@@ -35,5 +35,28 @@ describe('categories', () => {
 
   it('falls back to the raw id for an unknown category', () => {
     expect(categoryLabel('crypto')).toBe('crypto')
+  })
+})
+
+describe('categoriesFor', () => {
+  it('offers income categories for an income', () => {
+    expect(categoriesFor('income')).toEqual(['salary', 'freelance', 'other'])
+  })
+
+  it('offers expense categories for an expense', () => {
+    expect(categoriesFor('expense')).toEqual([
+      'rent',
+      'groceries',
+      'transport',
+      'entertainment',
+      'utilities',
+      'health',
+      'other',
+    ])
+  })
+
+  it('never offers the transfer category', () => {
+    expect(categoriesFor('income')).not.toContain('transfer')
+    expect(categoriesFor('expense')).not.toContain('transfer')
   })
 })

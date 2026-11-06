@@ -39,7 +39,7 @@ describe('checkNewMovement', () => {
   })
 
   it('never applies the debit rule to an income', () => {
-    expect(checkNewMovement({ ...EXPENSE, type: 'income', amount: 999999999 }, 'unknown')).toEqual({ ok: true })
+    expect(checkNewMovement({ ...EXPENSE, type: 'income', category: 'salary', amount: 999999999 }, 'unknown')).toEqual({ ok: true })
   })
 
   it('rejects the transfer category and unknown categories', () => {
@@ -53,8 +53,19 @@ describe('checkNewMovement', () => {
     })
   })
 
+  it('only accepts the categories offered for the type', () => {
+    expect(checkNewMovement({ ...EXPENSE, category: 'salary' }, 44000 * 10)).toEqual({
+      ok: false,
+      problem: 'invalidCategory',
+    })
+    expect(checkNewMovement({ ...EXPENSE, type: 'income', category: 'groceries' }, 0)).toEqual({
+      ok: false,
+      problem: 'invalidCategory',
+    })
+  })
+
   it(`accepts a description of ${MAX_DESCRIPTION_LENGTH} characters and rejects a longer one`, () => {
-    const income = { ...EXPENSE, type: 'income' as const }
+    const income = { ...EXPENSE, type: 'income' as const, category: 'salary' }
     expect(checkNewMovement({ ...income, description: 'x'.repeat(MAX_DESCRIPTION_LENGTH) }, 0)).toEqual({ ok: true })
     expect(checkNewMovement({ ...income, description: 'x'.repeat(MAX_DESCRIPTION_LENGTH + 1) }, 0)).toEqual({
       ok: false,
@@ -63,8 +74,8 @@ describe('checkNewMovement', () => {
   })
 
   it('rejects an amount that is not a positive whole number of cents', () => {
-    expect(checkNewMovement({ ...EXPENSE, type: 'income', amount: 0 }, 0)).toEqual({ ok: false, problem: 'invalidAmount' })
-    expect(checkNewMovement({ ...EXPENSE, type: 'income', amount: 10.5 }, 0)).toEqual({
+    expect(checkNewMovement({ ...EXPENSE, type: 'income', category: 'salary', amount: 0 }, 0)).toEqual({ ok: false, problem: 'invalidAmount' })
+    expect(checkNewMovement({ ...EXPENSE, type: 'income', category: 'salary', amount: 10.5 }, 0)).toEqual({
       ok: false,
       problem: 'invalidAmount',
     })
@@ -82,6 +93,15 @@ describe('checkMovementEdit', () => {
       ok: false,
       problem: 'transferNotEditable',
     })
+  })
+
+  it('rejects a category of the other type, but keeps the stored one', () => {
+    expect(checkMovementEdit(STORED, { category: 'salary', description: '' })).toEqual({
+      ok: false,
+      problem: 'invalidCategory',
+    })
+    const legacy = { ...STORED, category: 'freelance' }
+    expect(checkMovementEdit(legacy, { category: 'freelance', description: 'Otro texto' })).toEqual({ ok: true })
   })
 
   it('rejects the transfer category and a description that is too long', () => {
