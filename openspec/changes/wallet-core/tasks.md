@@ -26,7 +26,7 @@ TDD: each domain task starts with failing tests derived from the spec scenarios.
 - [x] 4.1 `useAccounts` combining accounts + pending transfers into account figures (fail closed while pending transfers load or fail)
 - [x] 4.2 `useMovementList` (URL state, search written 300 ms after typing) and `useMovements(state)` with pagination and `visibleRange`
 - [x] 4.3 `useCreateMovement`, `useEditMovement`, `useCreateAccount` with pre-request checks, single submit and invalidations
-- [ ] 4.4 `useLogin`: validate the fields, sign in and store the session; a 401 here means wrong credentials, not an expired session
+- [x] 4.4 `useLogin`: validate the fields, sign in and store the session; a 401 here means wrong credentials, not an expired session
 
 ## 5. UI (blocked until the Claude Design handoff)
 
