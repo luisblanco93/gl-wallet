@@ -6,7 +6,7 @@ Move money between the user's accounts or to another user's account, making ever
 ## ADDED Requirements
 
 ### Requirement: Destination selection
-The user SHALL choose the destination either among their own accounts or by entering another user's account id. Own accounts in a different currency than the source SHALL be shown disabled with the reason. The source account SHALL NOT be a selectable destination. A P2P account id SHALL be non-empty and different from the source.
+The user SHALL choose the destination either among their own accounts or by entering another user's account id. Own accounts in a different currency than the source SHALL be shown disabled with the reason. The source account SHALL NOT be a selectable destination. A P2P account id SHALL be trimmed, non-empty and different from the source. A P2P id that matches one of the user's own accounts SHALL follow the same rules as choosing that account in "Mis cuentas".
 
 #### Scenario: Own account in another currency
 - **WHEN** the source is Cuenta Pesos (ARS) and the user opens "Mis cuentas"
@@ -17,8 +17,12 @@ The user SHALL choose the destination either among their own accounts or by ente
 - **THEN** an empty state explains why and offers "Crear cuenta"
 
 #### Scenario: Invalid P2P id
-- **WHEN** the P2P id is empty or equals the source account id
+- **WHEN** the P2P id is empty, only spaces, or equals the source account id
 - **THEN** a field error is shown and the user cannot continue
+
+#### Scenario: P2P id of an own account in another currency
+- **WHEN** the source is Cuenta Pesos (ARS) and the user types the id of their own Cuenta Dólares in the P2P field
+- **THEN** the destination is rejected with the same currency reason as in "Mis cuentas"
 
 ### Requirement: Amount validation
 The amount SHALL be parsed with the money rules and SHALL pass the debit rule against the source's available amount before the user can continue. While the source's available amount is unknown, the transfer SHALL be blocked.
@@ -70,7 +74,7 @@ The system SHALL map the transfer response to one outcome:
 - **THEN** a connection error is shown and the user decides whether to retry, after checking Movements
 
 ### Requirement: Status tracking
-After a 201, the system SHALL show the transfer as "Procesando" (text, not only a spinner) and poll `GET /transfers/:id` every 1 s. On `completed` it SHALL show "Acreditada", announce the change to assistive technology, stop polling, and refresh accounts, pending transfers and movements. If the transfer is still `pending` 10 s after creation, it SHALL stop polling and show "Está tardando más de lo normal" with a link to Movements. The polling decision SHALL be a pure function of status and elapsed time.
+After a 201, the system SHALL show the transfer as "Procesando" (text, not only a spinner) and poll `GET /transfers/:id` every 1 s. On `completed` it SHALL show "Acreditada", announce the change to assistive technology, stop polling, and refresh accounts, pending transfers and movements. If the transfer is still `pending` 10 s after creation, it SHALL stop polling and show "Está tardando más de lo normal" with a link to Movements. If the status is `failed`, it SHALL stop polling and show "Fallida" with a link to Movements. The polling decision SHALL be a pure function of status and elapsed time.
 
 #### Scenario: Normal settlement
 - **WHEN** the transfer becomes `completed` 1.5 s after creation
@@ -79,6 +83,10 @@ After a 201, the system SHALL show the transfer as "Procesando" (text, not only 
 #### Scenario: Settlement never happens
 - **WHEN** the transfer is still `pending` after 10 s
 - **THEN** polling stops and "Está tardando más de lo normal" is shown
+
+#### Scenario: Transfer fails
+- **WHEN** a status response reports `failed`
+- **THEN** polling stops and "Fallida" is shown with a link to Movements
 
 #### Scenario: Polling request fails
 - **WHEN** a status request fails with `network` before 10 s

@@ -20,12 +20,24 @@ Builds on `wallet-core`: money in cents, the `ApiError` kinds, the debit rule (`
 | Module | Contents | Resolves |
 |---|---|---|
 | `currency.ts` | `canTransferBetween(source, destination) → ok \| { reason: 'currencyMismatch', from, to }` | Ambiguity 1 |
-| `transferStatus.ts` | `TRANSFER_POLL_INTERVAL_MS = 1000`, `TRANSFER_POLL_MAX_MS = 10000`, `nextPoll(status, elapsedMs) → { poll: true, inMs } \| { poll: false, outcome: 'completed' \| 'delayed' }`, `listShouldRefresh(pendingCreatedAts, now)` | Ambiguity 2 |
+| `transferStatus.ts` | `TRANSFER_POLL_INTERVAL_MS = 1000`, `TRANSFER_POLL_MAX_MS = 10000`, `nextPoll(status, elapsedMs) → { poll: true, inMs } \| { poll: false, outcome: 'completed' \| 'delayed' \| 'failed' }`, `listShouldRefresh(pendingCreatedAts, nowMs)` | Ambiguity 2 |
 | `funds.ts` (from `wallet-core`) | `canDebit` reused unchanged | Ambiguity 3 |
-| `transferForm.ts` | `validateTransfer(input, accounts, figures) → Result<TransferDraft, FieldErrors>`: destination rules, amount parsing, debit rule, currency rule | Form rules in one place |
-| `fx.ts` | `referenceRate(compra, venta)`, `convert(cents, from, to, rates) → Cents`, `estimatedTotalArs(figures, rates)` | FX estimate |
+| `transferForm.ts` | `ownDestinationOptions(sourceId, accounts)` and `validateTransfer(input, accounts) → Result<TransferDraft, TransferErrors>`: destination rules, amount parsing, debit rule, currency rule, description length | Form rules in one place |
+| `fx.ts` | `referenceRate(compra, venta)`, `convert(cents, from, to, rates) → Cents`, `estimatedTotalArs(accounts, rates) → Cents \| 'unknown'` | FX estimate |
 
 Each module has constants named after the decision, so the numbers (1 s, 10 s) are visible in one place.
+
+### Domain details settled during implementation
+- **Accounts carry their available amount.** `validateTransfer` receives one list of `{ id, name, currency, available }` (as the new-movement form does) instead of accounts and figures separately: one lookup, no chance of pairing an account with another's figures.
+- **Codes, not copy.** The domain returns reason codes; `src/features` maps them to Spanish text, as in wallet-core.
+- **A P2P id that is an own account follows the own-account rules.** Otherwise typing the own USD account's id in the P2P field would bypass the currency block (DECISIONS.md §1). The draft is then marked as an own transfer, so the review shows the account name and no P2P warnings. The id is trimmed: the API accepts `" "` and answers 404.
+- **`failed` stops tracking.** The API schema allows it although no current flow produces it; tracking stops and shows "Fallida" instead of reporting a false "taking longer than usual". Rejected: treating it as delayed.
+- **A failed status request keeps the last known status.** `nextPoll` receives the last status the client saw (seeded from the 201 body), so a `network` error before 10 s keeps polling; the status query uses `retry: false` so TanStack's backoff does not override the 1 s cadence.
+- **One rounding, at the end.** `convert` multiplies by the source rate and divides by the destination rate in one expression and rounds once to the cent; rounding the intermediate ARS amount would drift on USD↔EUR.
+- **One rate date.** USD and EUR rates have different update times; the estimate label shows the older one, so it never claims to be fresher than it is.
+- **Total in ARS fails closed.** `estimatedTotalArs` returns `'unknown'` if any account's available is unknown (loading or failed) and the home hides the total; a total that silently leaves out one account would mislead. Rejected: adding the settled balance for those accounts (overstates the total while a transfer is pending) and a partial total with a notice.
+- **The description limit moves to the domain.** `MAX_DESCRIPTION_LENGTH` (500, the API's limit) now lives in `src/domain/types.ts`; movements and transfers import the same constant.
+- **Elapsed time uses the server's `createdAt`.** Verified on 2026-11-06 that the WSL server clock and the Windows browser clock match to under a second, so the local setup does not distort the 10 s window.
 
 ### Submission and tracking flow
 1. `validateTransfer` gates "Continuar"; the review renders the `TransferDraft`.

@@ -35,14 +35,18 @@ Every estimated value SHALL be shown with "≈", the words "estimado al tipo de 
 - **THEN** it shows "$ 100.000 ≈ US$ 64,72, estimado al tipo de cambio oficial (5 nov 2026, 14:49)"
 
 ### Requirement: Estimated total in ARS
-The home screen SHALL show, below the per-currency balances, a total of all accounts' available amounts converted to ARS, labelled as an estimate with source and date. The per-currency balances SHALL remain the primary figures.
+The home screen SHALL show, below the per-currency balances, a total of all accounts' available amounts converted to ARS, labelled as an estimate with source and date. The per-currency balances SHALL remain the primary figures. While any account's available amount is unknown (loading or failed), the total SHALL be hidden.
 
 #### Scenario: Mixed-currency accounts
 - **WHEN** the user has $ 855.000 and US$ 440 available, at 1.545 ARS/USD
 - **THEN** the home shows "Total estimado: ≈ $ 1.534.800,00" with its label
 
+#### Scenario: An available amount is unknown
+- **WHEN** the pending transfers failed to load, so an account's available amount is unknown
+- **THEN** the home shows no estimated total, only the per-currency balances
+
 ### Requirement: Graceful FX failure
-If the FX source fails or returns unexpected data, the system SHALL hide every estimate and SHALL keep all other functionality working. No error SHALL block a money operation because of FX.
+If either rate request fails or returns unexpected data, the system SHALL hide every estimate (no partial rates) and SHALL keep all other functionality working. No error SHALL block a money operation because of FX.
 
 #### Scenario: FX source unreachable
 - **WHEN** dolarapi.com does not respond
