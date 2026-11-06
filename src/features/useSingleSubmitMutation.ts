@@ -8,14 +8,15 @@ import { useRef } from 'react'
 export function useSingleSubmitMutation<TData, TVariables>(options: {
   readonly mutationFn: (variables: TVariables) => Promise<TData>
   readonly onSuccess?: (data: TData) => Promise<unknown> | unknown
-  readonly onError?: (error: Error) => void
+  /** A returned promise is awaited before the error is reported (e.g. a refetch). */
+  readonly onError?: (error: Error) => Promise<unknown> | unknown
 }) {
   const inFlight = useRef(false)
   const { onSuccess, onError } = options
   const mutation = useMutation<TData, Error, TVariables>({
     mutationFn: options.mutationFn,
     onSuccess: onSuccess ? (data) => onSuccess(data) : undefined,
-    onError,
+    onError: onError ? (error) => onError(error) : undefined,
     retry: 0,
   })
 
