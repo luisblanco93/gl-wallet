@@ -22,7 +22,7 @@ Builds on `wallet-core`: money in cents, the `ApiError` kinds, the debit rule (`
 | `currency.ts` | `canTransferBetween(source, destination) → ok \| { reason: 'currencyMismatch', from, to }` | Ambiguity 1 |
 | `transferStatus.ts` | `TRANSFER_POLL_INTERVAL_MS = 1000`, `TRANSFER_POLL_MAX_MS = 10000`, `nextPoll(status, elapsedMs) → { poll: true, inMs } \| { poll: false, outcome: 'completed' \| 'delayed' \| 'failed' }`, `listShouldRefresh(pendingCreatedAts, nowMs)` | Ambiguity 2 |
 | `funds.ts` (from `wallet-core`) | `canDebit` reused unchanged | Ambiguity 3 |
-| `transferForm.ts` | `ownDestinationOptions(sourceId, accounts)` and `validateTransfer(input, accounts) → Result<TransferDraft, TransferErrors>`: destination rules, amount parsing, debit rule, currency rule, description length | Form rules in one place |
+| `transferForm.ts` | `ownDestinationOptions(source, accounts)` and `validateTransfer(input, accounts) → Result<TransferDraft, TransferErrors>`: destination rules, amount parsing, debit rule, currency rule, description length | Form rules in one place |
 | `fx.ts` | `referenceRate(compra, venta)`, `convert(cents, from, to, rates) → Cents`, `estimatedTotalArs(accounts, rates) → Cents \| 'unknown'` | FX estimate |
 
 Each module has constants named after the decision, so the numbers (1 s, 10 s) are visible in one place.
@@ -48,6 +48,14 @@ Each module has constants named after the decision, so the numbers (1 s, 10 s) a
 - **FX cache.** `staleTime` and `gcTime` are both 10 min (the default `gcTime` of 5 min would drop the rates when leaving Home), and `retry: false`.
 - **FX wiring.** `src/api` keeps the wallet API and the FX client separate; `app` composes them into one `AppApi` provided to features. The FX client gets the plain `fetch` (no token) and sends no custom headers, so the GET needs no CORS preflight (dolarapi answers preflights with 405; verified 2026-11-06).
 - **Movement-list refresh has no hook test.** The decision is the tested `listShouldRefresh`; the wiring is checked in the manual run (5.2).
+
+### Review findings applied (product-owner, security-gate)
+- **The polling window is bounded on both sides.** `Math.abs(age) < 10 s`: a `createdAt` far in the future (server clock ahead, or untrustworthy data) stops polling as delayed instead of polling every second until that date. A small skew still polls.
+- **The single-submit guard survives a remount.** Besides the synchronous ref, `submit` checks the mutation cache by `mutationKey`, so leaving the screen and coming back while a POST is in flight cannot send it again. Every mutation got a key, because expenses share the risk. The UI (group 4) reads that state to show the transfer as still sending.
+- **`server` errors refetch too.** A 5xx or a 201 whose body cannot be trusted leaves the outcome unknown, like `network`.
+- **Last gate checks the amount.** `useCreateTransfer` blocks an amount that is not a positive safe integer of cents (`invalidAmount`), since `canDebit(NaN, …)` passes; the form already guarantees it, this is defence in depth.
+- **FX hardening.** Requests use `credentials: 'omit'` and `referrerPolicy: 'no-referrer'` (no added header, so still no preflight), and a rate outside 0,01–10.000.000 ARS is rejected as bad data.
+- **Left as is:** a pending row with an unreadable date stops the list refresh (fails safe; dates are validated upstream). A Content-Security-Policy is a deployment concern: when the app is deployed, `connect-src` must list the API origin and `https://dolarapi.com`.
 
 ### Submission and tracking flow
 1. `validateTransfer` gates "Continuar"; the review renders the `TransferDraft`.

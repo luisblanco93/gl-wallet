@@ -16,8 +16,8 @@ Depends on `wallet-core` groups 1–3 (domain money/funds/balances, API client, 
 
 ## 3. Feature hooks
 
-- [x] 3.1 `useCreateTransfer` with the in-flight guard and outcome mapping (201, 422, 404, 400, network) plus invalidations
-- [x] 3.2 `useTransferStatus(id, createdAt)` driven by `nextPoll`
+- [x] 3.1 `useCreateTransfer` with the in-flight guard, outcome refetches (201, 422, network, server) and error kinds surfaced for the UI (404, 400; copy in 4.3)
+- [x] 3.2 `useTransferStatus(created)`, seeded with the creation response and driven by `nextPoll`
 - [x] 3.3 Movement list `refetchInterval` driven by `listShouldRefresh`
 - [x] 3.4 `useFxRates` (10-min cache, no retry, `undefined` on failure)
 
