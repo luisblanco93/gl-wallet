@@ -137,7 +137,7 @@ function Tracking({
   const destination = draft.destination.kind === 'own' ? draft.destination.account.name : draft.destination.accountId
   // The status response lacks the P2P destination side: the creation response is the only source.
   const credited = transfer.to
-  const mismatch = credited === null ? null : canTransferBetween(transfer.from, credited)
+  const hasMismatch = credited !== null && !canTransferBetween(transfer.from, credited).ok
   const [created, processing, settled] = TIMELINE[phase]
   const pendingMovements = { label: 'Ver en Movimientos', onClick: () => navigate('/movimientos?status=pending') }
   const movements = { label: 'Ver en Movimientos', onClick: () => navigate('/movimientos') }
@@ -148,7 +148,7 @@ function Tracking({
       tone: 'pending',
       kicker: 'En proceso',
       title: 'Procesando tu transferencia',
-      description: `Ya descontamos ${amount} de tu disponible. La acreditación suele tardar menos de 1 minuto; puedes salir de esta pantalla y seguirla desde Movimientos.`,
+      description: `Ya descontamos ${amount} de tu disponible. La acreditación suele tardar unos segundos; puedes salir de esta pantalla y seguirla desde Movimientos.`,
       primary: pendingMovements,
       secondary: goHome,
     },
@@ -157,7 +157,12 @@ function Tracking({
       tone: 'success',
       kicker: 'Acreditada',
       title: 'Transferencia acreditada',
-      description: isOwn ? `${destination} recibió ${amount}.` : `La cuenta ${destination} recibió ${amount}.`,
+      // With a currency mismatch the credited figure is in another currency: the notice explains it.
+      description: isOwn
+        ? `${destination} recibió ${amount}.`
+        : hasMismatch
+          ? `La cuenta ${destination} recibió la transferencia.`
+          : `La cuenta ${destination} recibió ${amount}.`,
       primary: { label: 'Hacer otra transferencia', onClick: actions.onNewTransfer },
       secondary: goHome,
     },
@@ -195,7 +200,7 @@ function Tracking({
         { label: 'Acreditada', state: settled },
       ]}
       notice={
-        credited !== null && mismatch !== null && !mismatch.ok
+        hasMismatch && credited !== null
           ? `La cuenta destino resultó ser en ${credited.currency}: se acreditó el mismo monto sin conversión`
           : undefined
       }

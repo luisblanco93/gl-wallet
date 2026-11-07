@@ -159,7 +159,7 @@ function EstimatedTotal({ accounts }: { accounts: readonly AccountView[] }) {
     <div className="flex flex-col gap-1 rounded-lg border-[1.5px] border-dashed border-line px-5 py-4">
       <p className="text-amount money-wrap">{`Total estimado: ≈ ${formatMoney(total, 'ARS')}`}</p>
       <p className="text-caption text-ink-muted text-pretty">
-        Suma de tus disponibles en pesos, {rateLabel(rates)}. Fuente: dolarapi.com. Es una referencia: tu dinero sigue
+        Suma de tus disponibles convertidos a pesos, {rateLabel(rates)}. Fuente: dolarapi.com. Es una referencia: tu dinero sigue
         en la moneda de cada cuenta.
       </p>
     </div>

@@ -22,7 +22,8 @@ const NO_ACCOUNTS: readonly AccountView[] = []
 
 type Stage =
   | { readonly name: 'form'; readonly alert?: string }
-  | { readonly name: 'review'; readonly draft: TransferDraft }
+  /** `isRetryAfterUnknown`: the previous confirm got no trustworthy response, so it may have gone through. */
+  | { readonly name: 'review'; readonly draft: TransferDraft; readonly isRetryAfterUnknown?: boolean }
   | { readonly name: 'result'; readonly draft: TransferDraft; readonly outcome: TransferOutcome }
 
 const STEP_OF: Readonly<Record<Stage['name'], number>> = { form: 1, review: 2, result: 3 }
@@ -69,9 +70,9 @@ export function TransferPage() {
     requestFocus(alert ? FORM_ALERT_ID : field === FIELD_IDS.own || field === FIELD_IDS.p2p ? destinationField : field)
   }
 
-  function review(draft: TransferDraft) {
+  function review(draft: TransferDraft, isRetryAfterUnknown = false) {
     create.reset()
-    setStage({ name: 'review', draft })
+    setStage({ name: 'review', draft, isRetryAfterUnknown })
     requestFocus(REVIEW_HEADING_ID)
   }
 
@@ -121,6 +122,7 @@ export function TransferPage() {
           available={availableOf(stage.draft)}
           isSending={create.isPending}
           isBlockedByOtherSend={isOtherSendInFlight}
+          isRetryAfterUnknown={stage.isRetryAfterUnknown ?? false}
           onConfirm={() => confirm(stage.draft)}
           onEdit={(field) => backToForm(field)}
           onBack={() => backToForm(FIELD_IDS.amount)}
@@ -135,7 +137,7 @@ export function TransferPage() {
             onNewTransfer: startOver,
             onCorrectAmount: () => backToForm(FIELD_IDS.amount),
             onCorrectDestination: () => backToForm(FIELD_IDS.p2p),
-            onRetry: () => review(stage.draft),
+            onRetry: () => review(stage.draft, true),
           }}
         />
       )}

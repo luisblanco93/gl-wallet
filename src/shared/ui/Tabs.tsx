@@ -44,7 +44,8 @@ export function Tabs<T extends string>({
               role="tab"
               id={tabId(idPrefix, item.value)}
               aria-selected={selected}
-              aria-controls={panelId(idPrefix, item.value)}
+              // Only the selected tab's panel is rendered.
+              aria-controls={selected ? panelId(idPrefix, item.value) : undefined}
               tabIndex={selected ? 0 : -1}
               onClick={() => onChange(item.value)}
               onKeyDown={handleKeyDown}

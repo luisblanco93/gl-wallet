@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { formatMoney } from '@/domain/money'
 import type { TransferDraft } from '@/domain/transferForm'
 import { CURRENCY_NAMES } from '@/features/accounts/accountView'
@@ -67,6 +68,7 @@ export function TransferReview({
   available,
   isSending,
   isBlockedByOtherSend,
+  isRetryAfterUnknown,
   onConfirm,
   onEdit,
   onBack,
@@ -76,6 +78,8 @@ export function TransferReview({
   isSending: boolean
   /** A transfer sent before this screen mounted is still in flight. */
   isBlockedByOtherSend: boolean
+  /** Back from "No pudimos confirmar el envío": a second confirm could pay twice. */
+  isRetryAfterUnknown: boolean
   onConfirm: () => void
   onEdit: (field: string) => void
   onBack: () => void
@@ -119,6 +123,17 @@ export function TransferReview({
             conversión, no el equivalente en {CURRENCY_NAMES[source.currency].toLowerCase()}.
           </Alert>
         </>
+      )}
+      {isRetryAfterUnknown && (
+        <Alert tone="warning" title="Tu envío anterior pudo haberse registrado">
+          <span>
+            Antes de confirmar, revisa Movimientos. Si la transferencia aparece como Pendiente o Completada, no la
+            envíes de nuevo: pagarías dos veces.
+          </span>
+          <Link to="/movimientos" className="font-bold underline underline-offset-3">
+            Revisar Movimientos
+          </Link>
+        </Alert>
       )}
       {isBlockedByOtherSend && (
         <Alert tone="pending" title="Todavía estamos enviando una transferencia anterior">
