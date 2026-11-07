@@ -2,7 +2,7 @@ import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
-import { ApiError } from '@/api/errors'
+import { ApiError, networkError } from '@/api/errors'
 import { appRoutes } from '@/app/routes'
 import type { Account, Movement, Transfer } from '@/domain/types'
 import { createTestProviders } from '@/test/providers'
@@ -111,6 +111,56 @@ describe('TransferPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Procesando tu transferencia' })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Transferencia acreditada' }, { timeout: 3000 })).toBeInTheDocument()
+  })
+
+  it('never resends after a connection error and warns again before a retried confirm', async () => {
+    const user = userEvent.setup()
+    const { api } = setup((fake) => fake.createTransfer.mockRejectedValue(networkError()))
+    await reviewP2p(user)
+
+    await user.click(confirmButton())
+    expect(await screen.findByRole('heading', { name: 'No pudimos confirmar el envío' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Reintentar' }))
+
+    expect(await screen.findByRole('heading', { name: 'Revisa antes de confirmar' })).toBeInTheDocument()
+    expect(screen.getByText('Tu envío anterior pudo haberse registrado')).toBeInTheDocument()
+    expect(api.createTransfer).toHaveBeenCalledOnce()
+  })
+
+  it('tells the user when the P2P destination turned out to be in another currency', async () => {
+    const user = userEvent.setup()
+    const created = transfer('pending')
+    const inUsd: Transfer = { ...created, to: created.to && { ...created.to, currency: 'USD' } }
+    setup((fake) => {
+      fake.createTransfer.mockResolvedValue(inUsd)
+      fake.getTransfer.mockResolvedValue({ ...inUsd, to: null })
+    })
+    await reviewP2p(user)
+
+    await user.click(confirmButton())
+
+    expect(
+      await screen.findByText('La cuenta destino resultó ser en USD: se acreditó el mismo monto sin conversión'),
+    ).toBeInTheDocument()
+  })
+
+  it('shows another-currency own account disabled with its reason and a labelled estimate', async () => {
+    const user = userEvent.setup()
+    setup((fake) =>
+      fake.getFxRates.mockResolvedValue({ arsPerUsd: 1545, arsPerEur: 1731, updatedAt: '2026-11-05T17:49:00Z' }),
+    )
+    expect(await screen.findByRole('radio', { name: /^Cuenta Pesos/ })).toHaveAttribute('aria-checked', 'true')
+    await user.type(screen.getByLabelText('Monto en Cuenta Pesos'), '100000')
+
+    const destinations = screen.getByRole('radiogroup', { name: 'Cuenta destino' })
+    expect(within(destinations).getByRole('radio', { name: /^Cuenta Dolares/ })).toBeDisabled()
+    expect(within(destinations).getByText('Moneda distinta: no se puede transferir entre ARS y USD')).toBeInTheDocument()
+    expect(
+      await within(destinations).findByText(
+        `$${NBSP}100.000,00 ≈ US$${NBSP}64,72, estimado al tipo de cambio oficial (5 nov 2026, 14:49)`,
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Crear cuenta' })).toBeInTheDocument()
   })
 
   it('returns to the destination field with its value when the destination does not exist', async () => {
