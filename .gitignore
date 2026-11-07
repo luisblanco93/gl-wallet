@@ -31,8 +31,9 @@ coverage
 .env.local
 .env.*.local
 
-# Claude Code local config
-.claude/
+# Claude Code local config (the project's review agents are published)
+.claude/*
+!.claude/agents/
 
 # Personal Claude Code preferences
 CLAUDE.md
