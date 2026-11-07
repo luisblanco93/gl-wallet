@@ -40,7 +40,9 @@ describe('app routes', () => {
   it('sends a signed-in user away from login to home', () => {
     const { router } = renderAt('/login', { signedIn: true })
     expect(router.state.location.pathname).toBe('/')
-    expect(screen.getByRole('heading', { level: 1, name: 'Tu dinero' })).toBeInTheDocument()
+    expect(screen.getByText('Wallet')).toBeInTheDocument()
+    expect(screen.queryByText('Tu dinero')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Inicio' })).toBeInTheDocument()
   })
 
 

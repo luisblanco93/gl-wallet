@@ -50,7 +50,7 @@ describe('HomePage', () => {
       api.listMovements.mockImplementation(never)
     })
     expect(screen.getByText('Hola, Demo')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 1, name: 'Tu dinero' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Inicio' })).toBeInTheDocument()
     expect(screen.getByText('Cargando saldos…')).toBeInTheDocument()
     expect(screen.queryByText(`$${NBSP}0,00`)).not.toBeInTheDocument()
   })
@@ -146,7 +146,7 @@ describe('HomePage', () => {
     const detail = await screen.findByRole('dialog', { name: 'Detalle del movimiento' })
     expect(await within(detail).findByText('Las transferencias no se pueden editar')).toBeInTheDocument()
     expect(api.getMovement).toHaveBeenCalledWith('transfer-1-out')
-    expect(screen.getByRole('heading', { level: 1, name: 'Tu dinero' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Inicio' })).toBeInTheDocument()
 
     await userEvent.click(within(detail).getByRole('button', { name: 'Cerrar detalle' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

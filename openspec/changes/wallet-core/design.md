@@ -111,6 +111,11 @@ Filters and page live in the URL query string so a filtered view survives reload
 - Rejected: a theme context or external theme library (one control and document-level CSS suffice), an API preference (the mock API has no appearance setting), and keeping preview-only HTML as the implementation (it cannot preserve working app interactions).
 - Verification: the appearance detector's advisory about Fraunces being common is intentionally retained because it is part of the pairings the user requested after reviewing both previews. It is not an accessibility defect.
 
+### User-requested brand and home copy
+
+- Display "Wallet" in the shared brand and login help, with a matching decorative "w" initial.
+- Remove the visible "Tu dinero" home title. Keep an "Inicio" heading for assistive technology and the existing navigation focus behavior; preserve the greeting and actions. Rejected: removing the page heading entirely, which would lose its navigation announcement.
+
 ## Risks / Trade-offs
 
 - **Pending transfers beyond 50**: the API caps `pageSize` at 50. Available is computed from one page of pending outgoing transfers. Since transfers settle in ~1.5 s, more than 50 pending at once is unrealistic; documented, not handled.

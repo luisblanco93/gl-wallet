@@ -46,7 +46,7 @@ export function HomePage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <span className="text-body text-ink-muted">Hola, {userName}</span>
-          <PageTitle>Tu dinero</PageTitle>
+          <div className="sr-only"><PageTitle>Inicio</PageTitle></div>
         </div>
         <div className="grid w-full grid-cols-2 gap-2.5 md:flex md:w-auto">
           <Button
