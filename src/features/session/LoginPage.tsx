@@ -1,3 +1,5 @@
+import { demoToolsEnabled } from '@/config'
+import { useDemoLogoTap } from '@/features/demo/useDemoLogoTap'
 import { CircleCheck, Clock } from 'lucide-react'
 import { useRef, useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router'
@@ -13,6 +15,8 @@ import { StatusBadge } from '@/shared/ui/StatusBadge'
 import { validateCredentials, type CredentialErrors } from './credentials'
 import { useLogin } from './useLogin'
 import { useSession } from './useSession'
+
+const useLogoClick = demoToolsEnabled ? useDemoLogoTap : () => undefined
 
 const EMAIL_ERRORS = {
   required: 'Ingresa tu email.',
@@ -36,6 +40,7 @@ function LoginError({ error }: { error: Error }) {
 }
 
 export function LoginPage() {
+  const onLogoClick = useLogoClick()
   const { state } = useSession()
   const login = useLogin()
   const [email, setEmail] = useState('')
@@ -64,7 +69,7 @@ export function LoginPage() {
 
   return (
     <div className="min-h-dvh bg-bg px-4 py-6 text-ink md:px-10 md:py-8">
-      <Brand />
+      <Brand onClick={onLogoClick} />
       <main className="mx-auto mt-10 grid max-w-[65rem] grid-cols-[repeat(auto-fit,minmax(min(22.5rem,100%),1fr))] gap-10">
         <section className="flex max-w-[26.25rem] flex-col gap-5">
           <PageTitle>Iniciar sesión</PageTitle>
@@ -112,7 +117,7 @@ export function LoginPage() {
 function MoneyLegend() {
   return (
     <aside aria-label="Cómo leer tu dinero" className="flex max-w-[25rem] flex-col gap-3.5 self-center">
-      <h2 className="text-title">Cómo leer tu dinero en Greelow</h2>
+      <h2 className="text-title">Cómo leer tu dinero en Wallet</h2>
       <dl className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <dt className="inline-flex items-center gap-1.5 font-bold text-available">

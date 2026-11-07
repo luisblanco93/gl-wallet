@@ -5,3 +5,5 @@ const rawApiUrl = import.meta.env.VITE_API_URL ?? DEFAULT_API_URL
 export const config = {
   apiUrl: rawApiUrl.replace(/\/+$/, ''),
 } as const
+
+export const demoToolsEnabled = import.meta.env.DEV || import.meta.env.VITE_DEMO_TOOLS === 'true'

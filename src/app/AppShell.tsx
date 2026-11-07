@@ -1,3 +1,5 @@
+import { demoToolsEnabled } from '@/config'
+import { useDemoLogoTap } from '@/features/demo/useDemoLogoTap'
 import { ArrowLeftRight, House, List, LogOut, type LucideIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router'
 import { useSession } from '@/features/session/useSession'
@@ -6,6 +8,8 @@ import { Brand } from '@/shared/ui/Brand'
 import { cx } from '@/shared/ui/cx'
 import { Icon } from '@/shared/ui/Icon'
 import { ThemeSelect } from './ThemeSelect'
+
+const useLogoClick = demoToolsEnabled ? useDemoLogoTap : () => undefined
 
 const NAV: readonly { to: string; label: string; icon: LucideIcon; end?: boolean }[] = [
   { to: '/', label: 'Inicio', icon: House, end: true },
@@ -25,17 +29,18 @@ function initialsOf(name: string): string {
 
 /** Header with navigation (desktop), bottom bar (mobile), toasts and the routed page. */
 export function AppShell() {
+  const onLogoClick = useLogoClick()
   const { state, signOut } = useSession()
   const user = state.status === 'signedIn' ? state.session.user : null
   const logout = () => signOut('loggedOut')
 
   return (
-    <div className="flex min-h-dvh flex-col bg-bg text-ink">
+    <div className="relative flex min-h-dvh flex-col bg-bg text-ink">
       <a href="#main" className="sr-only-focusable absolute left-4 top-2 z-50 rounded-pill bg-ink px-4 py-2 text-bg">
         Saltar al contenido
       </a>
       <header className="flex items-center gap-2.5 border-b border-line py-2 pl-4 pr-2 lg:gap-7 lg:px-8 lg:py-3">
-        <Brand />
+        <Brand onClick={onLogoClick} />
         <nav aria-label="Principal" className="hidden lg:block">
           <ul className="flex gap-1">
             {NAV.map((item) => (
