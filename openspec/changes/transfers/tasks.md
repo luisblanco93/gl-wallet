@@ -31,5 +31,5 @@ Depends on `wallet-core` groups 1–3 (domain money/funds/balances, API client, 
 
 ## 5. Verification
 
-- [ ] 5.1 `npm run typecheck && npm run lint && npm test` green
-- [ ] 5.2 Manual run against the mock API: own transfer (after creating a second ARS account), P2P to `acc-4`, 422, 404 `acc-999`, double click, stuck pending (stop the server within 1.5 s), FX offline (block dolarapi.com in devtools)
+- [x] 5.1 `npm run typecheck && npm run lint && npm test` green
+- [x] 5.2 Manual run against the mock API: own transfer (after creating a second ARS account), P2P to `acc-4`, 422, 404 `acc-999`, double click, stuck pending (stop the server within 1.5 s), FX offline (block dolarapi.com in devtools)

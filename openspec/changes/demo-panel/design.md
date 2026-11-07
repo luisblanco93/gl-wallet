@@ -35,7 +35,7 @@
 - Wallet and FX matching compares parsed origins and normalized path boundaries against `config.apiUrl` and `FX_BASE_URL`. Lookalike origins and adjacent prefixes such as `/api2` pass through. Request objects retain their method and authorization headers unless the init argument overrides them.
 - Order, first match wins: delay ("Respuesta lenta", then continues), "API sin conexión", "Sesión vencida", "Error del servidor", "No cargan los pendientes", "Respuesta inválida", operation scenarios, transfer scenarios. So "API sin conexión" beats everything, as a real outage would.
 - "Sesión vencida" applies only to requests with an `Authorization` header, so login keeps meaning "wrong credentials" on 401. It turns itself off when it fires; otherwise logging in again would loop back to the login screen.
-- "Se pierde la respuesta" sends the real request and then throws, the case behind DECISIONS.md §5 (check Movements before retrying). Fake 400 and 422 are not sent: a real rejection creates nothing.
+- "Se pierde la respuesta" sends the real request and then throws, the case behind DECISIONS.md §4 (check Movements before retrying). Fake 400 and 422 are not sent: a real rejection creates nothing.
 - The 400 names a field the form already maps to Spanish copy: `name` (accounts), `amount` (new movement), `description` (edit). The API's English message never reaches the UI, as with real errors.
 - Network failures throw `TypeError('Failed to fetch')`, what browsers throw.
 
