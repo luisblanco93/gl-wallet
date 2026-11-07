@@ -47,6 +47,17 @@ type Props = {
 export function TransferForm({ accounts, pending, onRetryPending, rates, values, onChange, alert, onContinue, onCancel }: Props) {
   const [triedContinue, setTriedContinue] = useState(false)
   const [isCreatingAccount, setCreatingAccount] = useState(false)
+  // When the inline account form closes, focus goes to the destinations it may have added to.
+  const [closedAccountForm, setClosedAccountForm] = useState(0)
+  useEffect(() => {
+    if (closedAccountForm === 0) return
+    const group = document.getElementById(FIELD_IDS.own)
+    ;(group?.querySelector<HTMLElement>('button:not(:disabled)') ?? group)?.focus()
+  }, [closedAccountForm])
+  const toggleAccountForm = (isOpen: boolean) => {
+    setCreatingAccount(isOpen)
+    if (!isOpen) setClosedAccountForm((count) => count + 1)
+  }
   const summaryRef = useRef<HTMLDivElement>(null)
   const [focusSummary, setFocusSummary] = useState(0)
   useEffect(() => {
@@ -136,7 +147,7 @@ export function TransferForm({ accounts, pending, onRetryPending, rates, values,
               onSelect={(ownId) => onChange({ ownId })}
               error={triedContinue && errors.destination ? destinationMessage(errors.destination, 'own') : undefined}
               isCreatingAccount={isCreatingAccount}
-              onCreateAccount={setCreatingAccount}
+              onCreateAccount={toggleAccountForm}
             />
           ) : (
             <>

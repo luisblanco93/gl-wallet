@@ -33,7 +33,7 @@ export function Alert({
       role={role ?? (tone === 'error' ? 'alert' : 'status')}
       className={cx('flex items-start gap-3 rounded-lg border-[1.5px] px-4 py-3.5', style.className)}
     >
-      <Icon as={icon ?? style.icon} size={20} className="mt-px" />
+      <Icon as={icon ?? style.icon} size={20} className="mt-px shrink-0" />
       <div className="flex min-w-0 flex-col gap-0.5 text-sm/normal text-pretty">
         {title && <strong className="text-[0.906rem]">{title}</strong>}
         {children}
