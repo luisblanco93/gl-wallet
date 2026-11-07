@@ -2,6 +2,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import type { MovementPage } from '@/api/endpoints'
+import type { FxRates } from '@/domain/fx'
 import { networkError } from '@/api/errors'
 import type { Account, Movement } from '@/domain/types'
 import { createTestProviders } from '@/test/providers'
@@ -28,6 +29,8 @@ const PENDING_OUT: Movement = {
   transferId: null,
   createdAt: '2026-11-05T17:30:00Z',
 }
+
+const RATES: FxRates = { arsPerUsd: 1545, arsPerEur: 1731, updatedAt: '2026-11-05T17:49:00Z' }
 
 const never = <T,>() => new Promise<T>(() => {})
 const page = (items: Movement[]): MovementPage => ({ items, page: 1, pageSize: 5, total: items.length })
@@ -183,5 +186,28 @@ describe('HomePage', () => {
     // The toast region lives in the app shell (not rendered here); the form closes and gives focus back.
     await waitFor(() => expect(screen.getByRole('button', { name: 'Nueva cuenta' })).toHaveFocus())
     expect(screen.queryByLabelText('Nombre de la cuenta')).not.toBeInTheDocument()
+  })
+
+  it('shows the estimated total in ARS below the balances, labelled with the official rate date', async () => {
+    setup((api) => {
+      api.listAccounts.mockResolvedValue([PESOS, DOLLARS])
+      api.listPendingTransfers.mockResolvedValue([])
+      api.listMovements.mockResolvedValue(page([]))
+      api.getFxRates.mockResolvedValue(RATES)
+    })
+    expect(await screen.findByText(`Total estimado: ≈ $${NBSP}1.534.800,00`)).toBeInTheDocument()
+    expect(screen.getByText(/estimado al tipo de cambio oficial \(5 nov 2026, 14:49\)/)).toBeInTheDocument()
+  })
+
+  it('hides the estimated total while an available amount is unknown', async () => {
+    setup((api) => {
+      api.listAccounts.mockResolvedValue([PESOS, DOLLARS])
+      api.listPendingTransfers.mockRejectedValue(networkError())
+      api.listMovements.mockResolvedValue(page([]))
+      api.getFxRates.mockResolvedValue(RATES)
+    })
+    expect(await screen.findAllByText('No pudimos calcular tu disponible')).toHaveLength(2)
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)))
+    expect(screen.queryByText(/Total estimado/)).not.toBeInTheDocument()
   })
 })
