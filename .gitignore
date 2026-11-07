@@ -42,3 +42,4 @@ CLAUDE.md
 docs/*
 !docs/plan.md
 !docs/report.html
+!docs/images/

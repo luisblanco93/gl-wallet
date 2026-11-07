@@ -4,6 +4,8 @@ Billetera web para ver saldos y movimientos, registrar ingresos y gastos y trans
 
 Hecha con React 19, TypeScript estricto, Vite, TanStack Query, Tailwind CSS v4, y Vitest con Testing Library.
 
+**Por qué una billetera.** De las opciones de la consigna elegí la billetera porque un control de gastos ya lo venía haciendo como proyecto aparte: [Daily Expenses](https://dailyexpenses2.netlify.app/) (capturas: [vista del mes](docs/images/daily-expenses-mes.jpeg) y [vista de tarjetas](docs/images/daily-expenses-tarjetas.jpeg)).
+
 ## Requisitos
 
 - Node.js 22 o superior (probado con Node 24) y npm.
