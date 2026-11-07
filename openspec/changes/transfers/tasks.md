@@ -21,13 +21,13 @@ Depends on `wallet-core` groups 1–3 (domain money/funds/balances, API client, 
 - [x] 3.3 Movement list `refetchInterval` driven by `listShouldRefresh`
 - [x] 3.4 `useFxRates` (10-min cache, no retry, `undefined` on failure)
 
-## 4. UI (blocked until the Claude Design handoff)
+## 4. UI
 
-- [ ] 4.1 Transfer form: source, destination tabs (own / P2P) with disabled other-currency accounts and estimate, empty state with "Crear cuenta", amount with available
-- [ ] 4.2 Review step with P2P warnings
-- [ ] 4.3 Result states: processing, credited, delayed, insufficient funds, destination not found, currency-mismatch notice, connection error; `aria-live` announcements
-- [ ] 4.4 Estimated total in ARS on home
-- [ ] 4.5 Component tests: double click sends one request; 422 shows refreshed available; processing → credited
+- [x] 4.1 Transfer form: source, destination tabs (own / P2P) with disabled other-currency accounts and estimate, empty state with "Crear cuenta", amount with available
+- [x] 4.2 Review step with P2P warnings
+- [x] 4.3 Result states: processing, credited, delayed, failed, insufficient funds, destination not found, currency-mismatch notice, connection error; `aria-live` announcements
+- [x] 4.4 Estimated total in ARS on home
+- [x] 4.5 Component tests: double click sends one request; 422 shows refreshed available; processing → credited; 404 returns to the destination with its value
 
 ## 5. Verification
 
