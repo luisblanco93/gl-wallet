@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src https://cdn.jsdelivr.net/npm/mermaid@12.3.0/dist/mermaid.min.js 'sha256-r5SKsfyAtABhU4gswtdknPz5KYFO9YvxSZ+sVwqoaWo='; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'">
+<title>Plan de trabajo — Billetera — Greelow</title>
+<style>
+* { box-sizing: border-box; }
+pre.mermaid { background: #fff; border: 1px solid #d5e2dc; border-radius: .6rem; padding: 1rem; margin: 1rem 0; overflow-x: auto; text-align: center; }
+body { margin: 0; background: #fafcfb; color: #182b24; font: 1rem/1.6 system-ui, sans-serif; }
+main { max-width: 76rem; margin: auto; padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; }
+h1, h2, h3 { line-height: 1.2; text-wrap: balance; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: .25rem; }
+h2 { margin-top: 0; }
+h3 { margin: 1.5rem 0 .5rem; font-size: 1.05rem; }
+p, li { max-width: 82ch; }
+a { color: #116346; text-underline-offset: .2em; }
+nav.toc { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: .4rem .9rem; font-size: .92rem; }
+section { margin-top: 2rem; padding: clamp(1rem, 3vw, 2rem); background: white; border: 1px solid #d6e3db; border-radius: 1rem; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+th, td { text-align: left; vertical-align: top; padding: .5rem .75rem; border-bottom: 1px solid #e3ece6; }
+th { background: #f2f6f3; }
+code { font-size: .9em; background: #f2f6f3; padding: .05em .3em; border-radius: .25rem; }
+pre { overflow: auto; padding: 1rem; background: #f2f6f3; font-size: .85rem; }
+summary { cursor: pointer; font-weight: 600; }
+blockquote { margin: 0; padding-left: 1rem; border-left: 4px solid #d6e3db; color: #4a5d55; }
+del { color: #6b7d75; }
+:focus-visible { outline: 3px solid #116346; outline-offset: 3px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; margin: 1rem 0; }
+.kpi { border: 1px solid #d6e3db; border-radius: 1rem; padding: 1rem 1.25rem; background: #fbfdfc; }
+.kpi strong { display: block; font-size: 1.8rem; line-height: 1.1; }
+.kpi span { color: #4a5d55; font-size: .9rem; }
+.bar { height: .5rem; background: #e3ece6; border-radius: 1rem; margin-top: .5rem; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: #116346; }
+.ok { color: #116346; font-weight: 700; }
+.flow { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: .6rem 0; }
+.node { border: 1.5px solid #116346; border-radius: .6rem; padding: .35rem .7rem; background: #f4faf6; font-size: .9rem; }
+.node.pending { border-style: dashed; border-color: #8a5a00; background: #fff4d6; color: #503500; }
+.node.ext { border-color: #4a5d55; background: #f2f6f3; }
+.arrow { color: #4a5d55; font-size: .85rem; }
+.layers { display: grid; gap: .6rem; margin: 1rem 0; }
+.layer { border: 1.5px solid #d6e3db; border-radius: .75rem; padding: .6rem .9rem; }
+.layer b { display: block; }
+.layer small { color: #4a5d55; }
+.legend { border-left: 4px solid #8a5a00; padding-left: 1rem; }
+@media print { main, section { padding: .5rem; } details { display: none; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Plan de trabajo — Billetera</h1>
+<blockquote>Actualizado el 7 de noviembre de 2026.<br>El detalle de cada tarea vive en <code>openspec/changes/*/tasks.md</code>; este archivo es el mapa general.</blockquote>
+<p>Versión HTML de <a href="plan.md">plan.md</a>, generada desde ese archivo.</p>
+<nav class="toc" aria-label="Secciones"><a href="#s0">Avance</a><a href="#s1">Recorrido</a><a href="#s2">Flujo actual de la app</a><a href="#s3">Arquitectura e interacción actuales</a><a href="#s4">Secuencia de una transferencia</a><a href="#s5">wallet-core</a><a href="#s6">transfers</a><a href="#s7">Entregables</a><a href="#s8">Bloqueos</a><a href="#s9">Orden recomendado</a><a href="#s10">Cómo trabajamos</a></nav>
+</header>
+<section aria-labelledby="s0"><h2 id="s0">Avance</h2><div class="kpis"><div class="kpi"><strong>26 de 26</strong><span>wallet-core (100 %)</span><div class="bar" aria-hidden="true"><i style="width:100%"></i></div></div><div class="kpi"><strong>17 de 17</strong><span>transfers (100 %)</span><div class="bar" aria-hidden="true"><i style="width:100%"></i></div></div><div class="kpi"><strong>7 de 9</strong><span>demo-panel (77 %)</span><div class="bar" aria-hidden="true"><i style="width:77%"></i></div></div><div class="kpi"><strong>50 de 52</strong><span>Total (96 %)</span><div class="bar" aria-hidden="true"><i style="width:96%"></i></div></div></div><div class="table-wrap"><table><thead><tr><th scope="col">Parte</th><th scope="col">Avance</th><th scope="col">Hechas</th></tr></thead><tbody><tr><td><strong>wallet-core</strong> (sesión, cuentas, movimientos)</td><td><code>██████████</code> 100 %</td><td>26 de 26</td></tr><tr><td><strong>transfers</strong> (transferencias, estados, cotización)</td><td><code>██████████</code> 100 %</td><td>17 de 17</td></tr><tr><td><strong>demo-panel</strong> (simulación de errores)</td><td><code>███████░░░</code> 78 %</td><td>7 de 9</td></tr><tr><td><strong>Total</strong></td><td><code>█████████░</code> 96 %</td><td>50 de 52</td></tr></tbody></table></div>
+<p>wallet-core está completo, incluido el selector de temas y los ajustes de Inicio.</p>
+<p>transfers está completo: dominio, capa API, hooks, pantallas y verificación.</p>
+<p>demo-panel está integrado; quedan los dos recorridos manuales (4.2 y 4.3).</p>
+<p>Los entregables escritos están listos: README, DECISIONS, PROMPT_LOG y ARCHITECTURE.</p></section><section aria-labelledby="s1"><h2 id="s1">Recorrido</h2><pre class="mermaid">flowchart TB
+    subgraph WC [wallet-core]
+        direction TB
+        W1[&quot;1 · Dominio ✅&quot;] --&gt; W2[&quot;2 · Capa API ✅&quot;]
+        W2 --&gt; W3[&quot;3 · Wiring de la app ✅&quot;]
+        W3 --&gt; W4[&quot;4 · Hooks ✅&quot;]
+        W4 --&gt; W5[&quot;5 · Pantallas ✅&quot;]
+    end
+
+    subgraph TR [transfers]
+        direction TB
+        T1[&quot;1 · Dominio ✅&quot;] --&gt; T2[&quot;2 · Capa API ✅&quot;]
+        T2 --&gt; T3[&quot;3 · Hooks ✅&quot;]
+        T3 --&gt; T4[&quot;4 · Pantallas ✅&quot;]
+    end
+
+    W1 --&gt; T1
+    W2 --&gt; T2
+    W4 --&gt; T3
+    D{{&quot;Diseño de Claude Design (usado en wallet-core)&quot;}} -. alimenta .-&gt; W5
+    D -. alimenta .-&gt; T4
+    W5 --&gt; V[&quot;Verificación contra el mock API&quot;]
+    T4 --&gt; V
+    V --&gt; E[&quot;Entrega: repo, README, DECISIONS, PROMPT_LOG&quot;]</pre>
+<details><summary>Ver fuente Mermaid</summary><pre><code>flowchart TB
+    subgraph WC [wallet-core]
+        direction TB
+        W1[&quot;1 · Dominio ✅&quot;] --&gt; W2[&quot;2 · Capa API ✅&quot;]
+        W2 --&gt; W3[&quot;3 · Wiring de la app ✅&quot;]
+        W3 --&gt; W4[&quot;4 · Hooks ✅&quot;]
+        W4 --&gt; W5[&quot;5 · Pantallas ✅&quot;]
+    end
+
+    subgraph TR [transfers]
+        direction TB
+        T1[&quot;1 · Dominio ✅&quot;] --&gt; T2[&quot;2 · Capa API ✅&quot;]
+        T2 --&gt; T3[&quot;3 · Hooks ✅&quot;]
+        T3 --&gt; T4[&quot;4 · Pantallas ✅&quot;]
+    end
+
+    W1 --&gt; T1
+    W2 --&gt; T2
+    W4 --&gt; T3
+    D{{&quot;Diseño de Claude Design (usado en wallet-core)&quot;}} -. alimenta .-&gt; W5
+    D -. alimenta .-&gt; T4
+    W5 --&gt; V[&quot;Verificación contra el mock API&quot;]
+    T4 --&gt; V
+    V --&gt; E[&quot;Entrega: repo, README, DECISIONS, PROMPT_LOG&quot;]</code></pre></details>
+<p><strong>Leyenda:</strong> ✅ listo · las flechas punteadas marcan lo que sale del diseño.</p></section><section aria-labelledby="s2"><h2 id="s2">Flujo actual de la app</h2>
+<div class="flow" role="list" aria-label="Entrada"><span class="node" role="listitem">Ruta protegida</span><span class="arrow" aria-hidden="true">→ sin sesión →</span><span class="node" role="listitem">Login</span><span class="arrow" aria-hidden="true">→</span><span class="node" role="listitem">Inicio</span></div>
+<div class="flow" role="list" aria-label="Inicio"><span class="node" role="listitem">Inicio</span><span class="arrow" aria-hidden="true">→</span><span class="node" role="listitem">Nueva cuenta (en la misma pantalla)</span><span class="arrow" aria-hidden="true">·</span><span class="node" role="listitem">Detalle sobre Inicio (?movimiento=)</span></div>
+<div class="flow" role="list" aria-label="Movimientos"><span class="node" role="listitem">Movimientos · filtros en la URL</span><span class="arrow" aria-hidden="true">→</span><span class="node" role="listitem">Detalle · /movimientos/:id</span><span class="arrow" aria-hidden="true">→</span><span class="node" role="listitem">Editar (ingreso o gasto)</span><span class="arrow" aria-hidden="true">→</span><span class="node" role="listitem">Cerrar: vuelve a la fila</span></div>
+<div class="flow" role="list" aria-label="Nuevo movimiento"><span class="node" role="listitem">Nuevo movimiento</span><span class="arrow" aria-hidden="true">→</span><span class="node" role="listitem">Regla de débito en vivo</span><span class="arrow" aria-hidden="true">→</span><span class="node" role="listitem">Inicio + toast con el nuevo disponible</span></div>
+<div class="flow" role="list" aria-label="Pendiente y salida"><span class="node pending" role="listitem">Transferir · pendiente</span><span class="arrow" aria-hidden="true">·</span><span class="node" role="listitem">Cerrar sesión o 401 → vaciar caché → Login</span></div>
+<p class="legend"><strong>Leyenda:</strong> borde punteado y «pendiente» = pantalla pendiente. El diagrama completo está en la fuente Mermaid de abajo.</p>
+<p>Este flujo describe la navegación implementada, no el orden de desarrollo.</p>
+<pre class="mermaid">flowchart TD
+    acc[&quot;Abrir una ruta protegida&quot;] --&gt; session{&quot;¿Hay sesión local?&quot;}
+    session --&gt;|No| login[&quot;Login · /login&quot;]
+    session --&gt;|Sí| shell[&quot;AppShell · navegación protegida&quot;]
+    login --&gt; credentials[&quot;Validar y enviar credenciales&quot;]
+    credentials --&gt;|Error| login
+    credentials --&gt;|Éxito: guardar sesión| home[&quot;Inicio · /&quot;]
+    home --&gt; shell
+    shell --&gt;|Inicio| home
+    home --&gt; balances[&quot;Saldos por cuenta y últimos movimientos&quot;]
+    home --&gt;|Nueva cuenta| account[&quot;Alta de cuenta&lt;br/&gt;en la misma pantalla&quot;]
+    shell --&gt;|Movimientos| movements[&quot;Movimientos · /movimientos&lt;br/&gt;filtros, búsqueda y página en la URL&quot;]
+    home --&gt;|Ver todos o&lt;br/&gt;Ver movimientos de una cuenta| movements
+    movements --&gt;|Elegir fila| detail[&quot;Detalle · /movimientos/:id&lt;br/&gt;panel sobre la lista&quot;]
+    home --&gt;|Elegir reciente| homeDetail[&quot;Mismo detalle sobre Inicio&lt;br/&gt;/?movimiento=id&quot;]
+    detail --&gt;|Ingreso o gasto| edit[&quot;Editar categoría y descripción&quot;]
+    detail --&gt;|Cerrar| back[&quot;Vuelve a la fila,&lt;br/&gt;con los filtros de la lista&quot;]
+    home --&gt;|Nuevo movimiento| create[&quot;Nuevo movimiento · /movimientos/nuevo&quot;]
+    movements --&gt;|Nuevo movimiento| create
+    create --&gt;|Registrado: toast con&lt;br/&gt;el nuevo disponible| home
+    shell --&gt;|Transferir| transfer[&quot;Transferir · /transferir&lt;br/&gt;Datos → Revisión → Resultado&quot;]
+    home --&gt;|Transferir| transfer
+    transfer --&gt;|Procesando o demorada| movements
+    transfer --&gt;|Sin cuenta propia en la moneda| account
+    home --&gt; total[&quot;Total estimado en ARS&lt;br/&gt;bajo los saldos&quot;]
+    shell --&gt;|Cerrar sesión| clear[&quot;Eliminar sesión y vaciar caché&quot;]
+    unauthorized[&quot;401 en petición&lt;br/&gt;autenticada&quot;] --&gt; clear
+    clear --&gt; login</pre>
+<details><summary>Ver fuente Mermaid</summary><pre><code>flowchart TD
+    acc[&quot;Abrir una ruta protegida&quot;] --&gt; session{&quot;¿Hay sesión local?&quot;}
+    session --&gt;|No| login[&quot;Login · /login&quot;]
+    session --&gt;|Sí| shell[&quot;AppShell · navegación protegida&quot;]
+    login --&gt; credentials[&quot;Validar y enviar credenciales&quot;]
+    credentials --&gt;|Error| login
+    credentials --&gt;|Éxito: guardar sesión| home[&quot;Inicio · /&quot;]
+    home --&gt; shell
+    shell --&gt;|Inicio| home
+    home --&gt; balances[&quot;Saldos por cuenta y últimos movimientos&quot;]
+    home --&gt;|Nueva cuenta| account[&quot;Alta de cuenta&lt;br/&gt;en la misma pantalla&quot;]
+    shell --&gt;|Movimientos| movements[&quot;Movimientos · /movimientos&lt;br/&gt;filtros, búsqueda y página en la URL&quot;]
+    home --&gt;|Ver todos o&lt;br/&gt;Ver movimientos de una cuenta| movements
+    movements --&gt;|Elegir fila| detail[&quot;Detalle · /movimientos/:id&lt;br/&gt;panel sobre la lista&quot;]
+    home --&gt;|Elegir reciente| homeDetail[&quot;Mismo detalle sobre Inicio&lt;br/&gt;/?movimiento=id&quot;]
+    detail --&gt;|Ingreso o gasto| edit[&quot;Editar categoría y descripción&quot;]
+    detail --&gt;|Cerrar| back[&quot;Vuelve a la fila,&lt;br/&gt;con los filtros de la lista&quot;]
+    home --&gt;|Nuevo movimiento| create[&quot;Nuevo movimiento · /movimientos/nuevo&quot;]
+    movements --&gt;|Nuevo movimiento| create
+    create --&gt;|Registrado: toast con&lt;br/&gt;el nuevo disponible| home
+    shell --&gt;|Transferir| transfer[&quot;Transferir · /transferir&lt;br/&gt;Datos → Revisión → Resultado&quot;]
+    home --&gt;|Transferir| transfer
+    transfer --&gt;|Procesando o demorada| movements
+    transfer --&gt;|Sin cuenta propia en la moneda| account
+    home --&gt; total[&quot;Total estimado en ARS&lt;br/&gt;bajo los saldos&quot;]
+    shell --&gt;|Cerrar sesión| clear[&quot;Eliminar sesión y vaciar caché&quot;]
+    unauthorized[&quot;401 en petición&lt;br/&gt;autenticada&quot;] --&gt; clear
+    clear --&gt; login</code></pre></details>
+<p><strong>Lectura:</strong> el estado local permite entrar; si la API responde 401 a una petición autenticada, la app termina la sesión. Un 401 durante el login se muestra como error de credenciales. Iniciar sesión lleva a Inicio; con una sesión existente se conserva la ruta protegida solicitada. Una ruta desconocida redirige a Inicio y pasa por la misma protección.</p>
+<p>El detalle es una ruta hija de Movimientos: la lista queda montada debajo y, al cerrar, el foco vuelve a la fila. Desde Inicio, el mismo panel se abre sobre Inicio (<code>?movimiento=</code>), sin cambiar de pantalla. Un gasto que supera el disponible (o con el disponible desconocido) no se puede enviar.</p>
+<p><strong>Referencias:</strong> <a href="../src/app/routes.tsx">rutas</a>, <a href="../src/features/movements/MovementsPage.tsx">Movimientos</a>, <a href="../src/features/movements/MovementDetail.tsx">detalle</a>, <a href="../src/features/movements/NewMovementPage.tsx">nuevo movimiento</a>, <a href="../src/features/accounts/HomePage.tsx">Inicio</a>, <a href="../src/features/transfers/TransferPage.tsx">Transferir</a> y <a href="../src/app/services.ts">sesión y cliente HTTP</a>.</p></section><section aria-labelledby="s3"><h2 id="s3">Arquitectura e interacción actuales</h2>
+<div class="layers">
+<div class="layer"><b>Pantallas y presentación</b><small>Login, Inicio (con total estimado), Movimientos, detalle, nuevo movimiento y Transferir; UI compartida (campos, botones, alertas, filas, panel lateral, pestañas, pasos)</small></div>
+<div class="layer"><b>Hooks de funcionalidades</b><small>useLogin · useAccounts, useMovements, useMovement, useFxRates · useCreateAccount, useCreateMovement, useEditMovement, useCreateTransfer (envío único, sin reintentos) · useTransferStatus</small></div>
+<div class="layer"><b>TanStack Query</b><small>Caché; se refresca al completar una mutación o ante un error de red; se vacía al salir</small></div>
+<div class="layer"><b>Capa API</b><small>Endpoints, guardas de DTO, conversión a centavos y errores normalizados; token solo en peticiones con sesión</small></div>
+<div class="layer node ext"><b>API externa (VITE_API_URL)</b><small>Mock API, tratada como no confiable</small></div>
+<div class="layer"><b>Dominio puro</b><small>Centavos, disponible, canDebit, editabilidad, formatos; lo usan los hooks, los formularios y la capa API</small></div>
+</div>
+<p>Las flechas indican solicitudes, resultados o uso de una regla. El dominio es TypeScript puro: no consulta la API ni conoce React. El diagrama resume las interacciones relevantes; no es un inventario de todos los imports.</p>
+<pre class="mermaid">flowchart LR
+    subgraph UI [&quot;Pantallas y presentación&quot;]
+        screens[&quot;Login, Inicio, Movimientos,&lt;br/&gt;detalle y nuevo movimiento&quot;]
+        shared[&quot;UI compartida&lt;br/&gt;Campos, botones, alertas,&lt;br/&gt;filas y panel lateral&quot;]
+        forms[&quot;Formularios de alta&lt;br/&gt;y edición&quot;]
+        screens --&gt;|Renderizan| shared
+    end
+    subgraph FEATURES [&quot;Hooks de funcionalidades&quot;]
+        loginHook[&quot;useLogin · valida credenciales&quot;]
+        reads[&quot;useAccounts&lt;br/&gt;useMovements&lt;br/&gt;useMovement&quot;]
+        writes[&quot;useCreateAccount&lt;br/&gt;useCreateMovement&lt;br/&gt;useEditMovement&quot;]
+    end
+    screens --&gt;|Credenciales| loginHook
+    screens &lt;--&gt;|Datos de cada pantalla| reads
+    forms --&gt;|Enviar| writes
+    reads &lt;--&gt;|Consultas| query[&quot;TanStack Query&lt;br/&gt;Caché&quot;]
+    query &lt;--&gt;|Cuentas, pendientes&lt;br/&gt;y movimientos| api[&quot;Capa API&lt;br/&gt;Endpoints, DTO&lt;br/&gt;y errores normalizados&quot;]
+    domain[&quot;Dominio puro&lt;br/&gt;Centavos, disponible,&lt;br/&gt;canDebit y editabilidad&quot;]
+    reads --&gt;|Calcular disponible| domain
+    forms --&gt;|Regla de débito en vivo| domain
+    writes --&gt;|Validar antes de enviar| domain
+    loginHook --&gt; submit[&quot;Envío único&lt;br/&gt;Sin reintentos&quot;]
+    writes --&gt; submit
+    submit --&gt;|POST o PATCH| api
+    writes --&gt;|Al completar o ante&lt;br/&gt;error de red: refrescar| query
+    api --&gt;|Conversión de montos| domain
+    api &lt;--&gt;|HTTP · token solo&lt;br/&gt;si requiere sesión| server[&quot;API externa&lt;br/&gt;VITE_API_URL&quot;]
+    loginHook --&gt;|Login exitoso| store[&quot;Sesión&lt;br/&gt;sessionStorage&quot;]
+    store --&gt;|Token| api
+    api --&gt;|401 autenticado:&lt;br/&gt;terminar sesión| store
+    store --&gt;|Al salir: vaciar caché| query</pre>
+<details><summary>Ver fuente Mermaid</summary><pre><code>flowchart LR
+    subgraph UI [&quot;Pantallas y presentación&quot;]
+        screens[&quot;Login, Inicio, Movimientos,&lt;br/&gt;detalle y nuevo movimiento&quot;]
+        shared[&quot;UI compartida&lt;br/&gt;Campos, botones, alertas,&lt;br/&gt;filas y panel lateral&quot;]
+        forms[&quot;Formularios de alta&lt;br/&gt;y edición&quot;]
+        screens --&gt;|Renderizan| shared
+    end
+    subgraph FEATURES [&quot;Hooks de funcionalidades&quot;]
+        loginHook[&quot;useLogin · valida credenciales&quot;]
+        reads[&quot;useAccounts&lt;br/&gt;useMovements&lt;br/&gt;useMovement&quot;]
+        writes[&quot;useCreateAccount&lt;br/&gt;useCreateMovement&lt;br/&gt;useEditMovement&quot;]
+    end
+    screens --&gt;|Credenciales| loginHook
+    screens &lt;--&gt;|Datos de cada pantalla| reads
+    forms --&gt;|Enviar| writes
+    reads &lt;--&gt;|Consultas| query[&quot;TanStack Query&lt;br/&gt;Caché&quot;]
+    query &lt;--&gt;|Cuentas, pendientes&lt;br/&gt;y movimientos| api[&quot;Capa API&lt;br/&gt;Endpoints, DTO&lt;br/&gt;y errores normalizados&quot;]
+    domain[&quot;Dominio puro&lt;br/&gt;Centavos, disponible,&lt;br/&gt;canDebit y editabilidad&quot;]
+    reads --&gt;|Calcular disponible| domain
+    forms --&gt;|Regla de débito en vivo| domain
+    writes --&gt;|Validar antes de enviar| domain
+    loginHook --&gt; submit[&quot;Envío único&lt;br/&gt;Sin reintentos&quot;]
+    writes --&gt; submit
+    submit --&gt;|POST o PATCH| api
+    writes --&gt;|Al completar o ante&lt;br/&gt;error de red: refrescar| query
+    api --&gt;|Conversión de montos| domain
+    api &lt;--&gt;|HTTP · token solo&lt;br/&gt;si requiere sesión| server[&quot;API externa&lt;br/&gt;VITE_API_URL&quot;]
+    loginHook --&gt;|Login exitoso| store[&quot;Sesión&lt;br/&gt;sessionStorage&quot;]
+    store --&gt;|Token| api
+    api --&gt;|401 autenticado:&lt;br/&gt;terminar sesión| store
+    store --&gt;|Al salir: vaciar caché| query</code></pre></details>
+<p><strong>Lectura:</strong> Inicio, Movimientos y Nuevo movimiento piden las cuentas y las transferencias pendientes para calcular el disponible. Mientras los pendientes sean desconocidos, el disponible también lo es y la regla de dominio bloquea los gastos. La capa API transforma los montos entre decimales y centavos y normaliza los errores antes de devolverlos a las funcionalidades.</p>
+<p>Los formularios de alta de cuenta (en Inicio), alta de movimiento y edición (en el detalle) usan esos hooks: validan con el dominio, evitan el doble envío e invalidan las consultas al completar. Ante un error de red se refrescan las consultas y se pide revisar antes de reintentar, porque la operación pudo haberse registrado. La pantalla Transferir usa los hooks de envío y seguimiento del estado, y la de cotizaciones para las estimaciones; Inicio usa las cotizaciones para el total estimado en ARS.</p>
+<p><strong>Referencias:</strong> <a href="../src/app/providers.tsx">providers</a>, <a href="../src/features/accounts/useAccounts.ts">cuentas</a>, <a href="../src/features/useSingleSubmitMutation.ts">mutaciones</a>, <a href="../src/features/refreshMoneyQueries.ts">refresco de consultas</a>, <a href="../src/api/endpoints.ts">endpoints</a> y <a href="../src/domain/">reglas del dominio</a>.</p></section><section aria-labelledby="s4"><h2 id="s4">Secuencia de una transferencia</h2><p>Diagrama de secuencia del envío y el seguimiento, tal como lo resuelven la pantalla, los hooks y el dominio.</p>
+<pre class="mermaid">sequenceDiagram
+    autonumber
+    actor U as Usuario
+    participant P as Pantalla Transferir
+    participant C as useCreateTransfer
+    participant D as Dominio
+    participant A as API mock
+    participant S as useTransferStatus
+    U-&gt;&gt;P: Revisar transferencia
+    P-&gt;&gt;D: validateTransfer(datos del formulario, cuentas)
+    D--&gt;&gt;P: borrador válido o errores por campo
+    U-&gt;&gt;P: Confirmar
+    P-&gt;&gt;C: submit(transferencia, disponible actual)
+    Note over C: Ignora otro envío mientras hay uno en curso, aunque se salga y vuelva a la pantalla
+    C-&gt;&gt;D: canDebit(monto, disponible)
+    alt Supera el disponible o el disponible es desconocido
+        D--&gt;&gt;C: bloqueado
+        C--&gt;&gt;P: bloqueado, no se envía nada
+    else Alcanza
+        C-&gt;&gt;A: POST /transfers
+        alt 201 en pending
+            A--&gt;&gt;C: transferencia con sus dos lados
+            Note over A: La API la liquida sola unos 1,5 s después
+            C-&gt;&gt;A: refetch de cuentas, pendientes y movimientos
+            C--&gt;&gt;P: transferencia creada
+            P-&gt;&gt;S: seguir el estado desde la respuesta del POST
+            loop Cada 1 s, mientras siga pending y hayan pasado menos de 10 s
+                S-&gt;&gt;A: GET /transfers/:id
+                A--&gt;&gt;S: estado
+            end
+            S--&gt;&gt;P: Acreditada, Fallida o Está tardando más de lo normal
+            S-&gt;&gt;A: refetch de saldos si quedó completed o failed
+        else 422, error de red o del servidor
+            A--&gt;&gt;C: error
+            C-&gt;&gt;A: refetch de cuentas, pendientes y movimientos
+            C--&gt;&gt;P: error, con el disponible ya actualizado
+        else 404 o 400
+            A--&gt;&gt;C: error
+            C--&gt;&gt;P: error para corregir el campo
+        end
+    end</pre>
+<details><summary>Ver fuente Mermaid</summary><pre><code>sequenceDiagram
+    autonumber
+    actor U as Usuario
+    participant P as Pantalla Transferir
+    participant C as useCreateTransfer
+    participant D as Dominio
+    participant A as API mock
+    participant S as useTransferStatus
+    U-&gt;&gt;P: Revisar transferencia
+    P-&gt;&gt;D: validateTransfer(datos del formulario, cuentas)
+    D--&gt;&gt;P: borrador válido o errores por campo
+    U-&gt;&gt;P: Confirmar
+    P-&gt;&gt;C: submit(transferencia, disponible actual)
+    Note over C: Ignora otro envío mientras hay uno en curso, aunque se salga y vuelva a la pantalla
+    C-&gt;&gt;D: canDebit(monto, disponible)
+    alt Supera el disponible o el disponible es desconocido
+        D--&gt;&gt;C: bloqueado
+        C--&gt;&gt;P: bloqueado, no se envía nada
+    else Alcanza
+        C-&gt;&gt;A: POST /transfers
+        alt 201 en pending
+            A--&gt;&gt;C: transferencia con sus dos lados
+            Note over A: La API la liquida sola unos 1,5 s después
+            C-&gt;&gt;A: refetch de cuentas, pendientes y movimientos
+            C--&gt;&gt;P: transferencia creada
+            P-&gt;&gt;S: seguir el estado desde la respuesta del POST
+            loop Cada 1 s, mientras siga pending y hayan pasado menos de 10 s
+                S-&gt;&gt;A: GET /transfers/:id
+                A--&gt;&gt;S: estado
+            end
+            S--&gt;&gt;P: Acreditada, Fallida o Está tardando más de lo normal
+            S-&gt;&gt;A: refetch de saldos si quedó completed o failed
+        else 422, error de red o del servidor
+            A--&gt;&gt;C: error
+            C-&gt;&gt;A: refetch de cuentas, pendientes y movimientos
+            C--&gt;&gt;P: error, con el disponible ya actualizado
+        else 404 o 400
+            A--&gt;&gt;C: error
+            C--&gt;&gt;P: error para corregir el campo
+        end
+    end</code></pre></details>
+<p><strong>Lectura:</strong> el dominio decide y los hooks ejecutan. El disponible se vuelve a comprobar al confirmar, porque pudo cambiar desde que se validó el formulario. Ningún error reenvía la transferencia sola: ante un error de red o del servidor se refrescan los datos para ver si se registró igual.</p>
+<p><strong>Referencias:</strong> <a href="../src/features/transfers/useCreateTransfer.ts">envío</a>, <a href="../src/features/transfers/useTransferStatus.ts">seguimiento</a>, <a href="../src/domain/transferStatus.ts">reglas del seguimiento</a> y <a href="../src/domain/transferForm.ts">validación del formulario</a>.</p></section><section aria-labelledby="s5"><h2 id="s5">wallet-core</h2><div class="table-wrap"><table><thead><tr><th scope="col">#</th><th scope="col">Grupo</th><th scope="col">Qué incluye</th><th scope="col">Estado</th></tr></thead><tbody><tr><td>1</td><td>Dominio</td><td>Montos, saldos (disponible y en proceso), regla de débito, editabilidad, categorías, etiquetas de transferencias</td><td>✅ Listo</td></tr><tr><td>2</td><td>Capa API</td><td>Cliente HTTP, errores normalizados, endpoints con conversión a centavos; probada contra el mock API real</td><td>✅ Listo</td></tr><tr><td>3</td><td>Wiring de la app</td><td>Sesión, política de reintentos, router con rutas protegidas, filtros en la URL</td><td>✅ Listo</td></tr><tr><td>4</td><td>Hooks</td><td>Cuentas (falla cerrada), movimientos con filtros y paginación, altas y ediciones, login</td><td>✅ Listo</td></tr><tr><td>5</td><td>Pantallas</td><td>1ª entrega: base, shell, login e inicio. 2ª entrega: movimientos, detalle y edición, nuevo movimiento y nueva cuenta</td><td>✅ Listo</td></tr><tr><td>6</td><td>Verificación</td><td>Gate de integración en verde (305 tests) y prueba manual con <code>demo@example.com</code></td><td>✅ Listo</td></tr><tr><td>7</td><td>Apariencia</td><td>Selector de temas junto al perfil, preferencia local y geometría de tarjetas conservada</td><td>✅ Listo</td></tr></tbody></table></div></section><section aria-labelledby="s6"><h2 id="s6">transfers</h2><div class="table-wrap"><table><thead><tr><th scope="col">#</th><th scope="col">Grupo</th><th scope="col">Qué incluye</th><th scope="col">Estado</th></tr></thead><tbody><tr><td>1</td><td>Dominio</td><td>Bloqueo entre monedas, estado de la transferencia (polling con tope), validación del formulario, cotización estimada</td><td>✅ Listo</td></tr><tr><td>2</td><td>Capa API</td><td>Crear y consultar transferencias, cliente de cotizaciones</td><td>✅ Listo</td></tr><tr><td>3</td><td>Hooks</td><td>Envío sin doble submit, seguimiento del estado, refresco de la lista, cotizaciones</td><td>✅ Listo</td></tr><tr><td>4</td><td>Pantallas</td><td>Formulario, revisión con avisos P2P, resultado, total estimado</td><td>✅ Listo</td></tr><tr><td>5</td><td>Verificación</td><td>Gate completo (316 tests) y prueba manual: propia, P2P, 422, 404, doble clic, trabada en pending, sin conexión y cotización caída</td><td>✅ Listo</td></tr></tbody></table></div></section><section aria-labelledby="s7"><h2 id="s7">Entregables</h2><div class="table-wrap"><table><thead><tr><th scope="col">Entregable</th><th scope="col">Estado</th></tr></thead><tbody><tr><td><code>README.md</code> (qué es, cómo correr la API y la app, panel de demostración)</td><td>✅ En <code>main</code></td></tr><tr><td><code>DECISIONS.md</code> (los tres puntos ambiguos, centavos y sin reintentos, qué no se implementó)</td><td>✅ En <code>main</code></td></tr><tr><td><code>PROMPT_LOG.md</code> (uso de IA)</td><td>✅ En <code>main</code></td></tr><tr><td><code>ARCHITECTURE.md</code> (capas, dónde vive cada regla, estado, errores y tests)</td><td>✅ En <code>main</code> (bonus)</td></tr><tr><td>Agentes revisores <code>product-owner</code> y <code>security-gate</code></td><td>✅ Versionados en <code>.claude/agents/</code></td></tr></tbody></table></div></section><section aria-labelledby="s8"><h2 id="s8">Bloqueos</h2><p>Ninguno.</p></section><section aria-labelledby="s9"><h2 id="s9">Orden recomendado</h2><ol><li><del>wallet-core · capa API (2) y wiring (3)</del> ✅</li><li><del>wallet-core · hooks (4)</del> ✅</li><li><del>wallet-core · pantallas (5), con el diseño</del> ✅</li><li><del>wallet-core · prueba manual (6.2) y commit</del> ✅</li><li><del>transfers · dominio (1), API (2) y hooks (3)</del> ✅</li><li><del>transfers · pantallas (4)</del> ✅</li><li><del>Verificación contra el mock API (transfers 5)</del> ✅</li><li><del>README, DECISIONS, PROMPT_LOG y ARCHITECTURE</del> ✅</li><li><strong>Recorridos manuales del panel de demostración (demo-panel 4.2 y 4.3)</strong> ← siguiente</li></ol></section><section aria-labelledby="s10"><h2 id="s10">Cómo trabajamos</h2><div class="table-wrap"><table><thead><tr><th scope="col">Regla</th><th scope="col">Detalle</th></tr></thead><tbody><tr><td>Spec primero</td><td>Cada cambio de comportamiento empieza en su change de OpenSpec</td></tr><tr><td>TDD</td><td>Por módulo: test en rojo, implementación en verde</td></tr><tr><td>Listo significa</td><td><code>typecheck</code>, <code>lint</code> y <code>test</code> en verde, con el resultado real</td></tr><tr><td>Revisión</td><td><code>product-owner</code> y <code>security-gate</code> al final de cada bloque, antes del merge</td></tr><tr><td>Commits</td><td>Solo con autorización; <code>test:</code> y <code>feat:</code> por área, <code>docs:</code> para OpenSpec</td></tr></tbody></table></div></section>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@12.3.0/dist/mermaid.min.js" integrity="sha384-HHW54r639fK42Ip0coGF3mz8oSiGn0eEoWNTLs75X7H63pLSDBa0Tqs0RwGmLlXE" crossorigin="anonymous"></script>
+<script>mermaid.initialize({ startOnLoad: true, securityLevel: 'strict', theme: 'neutral' });</script>
+</body>
+</html>

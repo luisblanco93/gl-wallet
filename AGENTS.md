@@ -70,6 +70,8 @@ src/app/       providers, router, layout
 
 ## Keeping the record
 
+- Keep `docs/plan.md` updated after each implementation block or change in scope, blockers, or next steps. Derive progress counts and percentages from `openspec/changes/*/tasks.md`, the source of truth for task completion. Update the plan's date when it changes.
+- Always create or update a standalone HTML version of each work report at `docs/report.html`, in Spanish, so it can be opened directly in a browser. Include a link to it in the final response.
 - New product decision → record it in the OpenSpec change's `design.md` (decision, rationale, rejected alternatives). If it is a significant trade-off, add it to `DECISIONS.md`.
 - AI suggestion accepted, modified or rejected for a non-obvious reason → add it to `PROMPT_LOG.md`.
 

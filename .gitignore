@@ -37,5 +37,7 @@ coverage
 # Personal Claude Code preferences
 CLAUDE.md
 
-# Private working notes
-docs/
+# Private working notes (the plan and its HTML report are published)
+docs/*
+!docs/plan.md
+!docs/report.html
