@@ -1,6 +1,10 @@
 import { ArrowLeftRight, ArrowRight, Plus, RotateCw, WifiOff } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
+import { estimatedTotalArs } from '@/domain/fx'
+import { formatMoney } from '@/domain/money'
+import { useFxRates } from '@/features/fx/useFxRates'
+import { rateLabel } from '@/features/fx/estimateLabel'
 import { Button } from '@/shared/ui/Button'
 import { LoadingRegion, Skeleton, StateMessage } from '@/shared/ui/Feedback'
 import { Icon } from '@/shared/ui/Icon'
@@ -103,7 +107,10 @@ export function HomePage() {
             {accounts.status === 'loading' ? (
               <AccountCardsSkeleton />
             ) : (
-              <AccountCards accounts={accounts.accounts} pending={accounts.pending} onRetryPending={accounts.retryPending} />
+              <>
+                <AccountCards accounts={accounts.accounts} pending={accounts.pending} onRetryPending={accounts.retryPending} />
+                <EstimatedTotal accounts={accounts.accounts} />
+              </>
             )}
           </section>
           <RecentMovements
@@ -135,6 +142,26 @@ function AccountCards({
           onRetryAvailable={onRetryPending}
         />
       ))}
+    </div>
+  )
+}
+
+/**
+ * A reference figure under the per-currency balances, which stay the primary ones. Hidden while the
+ * rates or any available amount are unknown: a total that leaves an account out would mislead.
+ */
+function EstimatedTotal({ accounts }: { accounts: readonly AccountView[] }) {
+  const rates = useFxRates()
+  if (rates === undefined || accounts.length === 0) return null
+  const total = estimatedTotalArs(accounts, rates)
+  if (total === 'unknown') return null
+  return (
+    <div className="flex flex-col gap-1 rounded-lg border-[1.5px] border-dashed border-line px-5 py-4">
+      <p className="text-amount money-wrap">{`Total estimado: ≈ ${formatMoney(total, 'ARS')}`}</p>
+      <p className="text-caption text-ink-muted text-pretty">
+        Suma de tus disponibles en pesos, {rateLabel(rates)}. Fuente: dolarapi.com. Es una referencia: tu dinero sigue
+        en la moneda de cada cuenta.
+      </p>
     </div>
   )
 }

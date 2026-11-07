@@ -9,11 +9,14 @@ export function AccountOption({
   selected,
   onSelect,
   disabled,
+  describedBy,
 }: {
   account: AccountCardView
   selected: boolean
   onSelect: () => void
   disabled?: boolean
+  /** Id of a note read with the option, e.g. why a destination is disabled (kept outside so it is not dimmed). */
+  describedBy?: string
 }) {
   const { availability } = account
   return (
@@ -21,6 +24,7 @@ export function AccountOption({
       type="button"
       role="radio"
       aria-checked={selected}
+      aria-describedby={describedBy}
       onClick={onSelect}
       disabled={disabled}
       className={cx(

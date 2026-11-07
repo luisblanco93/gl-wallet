@@ -5,8 +5,8 @@ import { MovementDetail } from '@/features/movements/MovementDetail'
 import { MovementsPage } from '@/features/movements/MovementsPage'
 import { NewMovementPage } from '@/features/movements/NewMovementPage'
 import { RequireSession } from '@/features/session/RequireSession'
+import { TransferPage } from '@/features/transfers/TransferPage'
 import { AppShell } from './AppShell'
-import { TransferPage } from './pages'
 
 export const appRoutes: RouteObject[] = [
   { path: '/login', element: <LoginPage /> },

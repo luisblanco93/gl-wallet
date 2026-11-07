@@ -37,7 +37,8 @@ export type DraftReview = {
   readonly debitBlock: DebitBlock | null
 }
 
-function amountMessage(error: AmountError, currency: Currency): string {
+/** Copy for an amount that does not parse; shared by the movement and transfer forms. */
+export function amountMessage(error: AmountError, currency: Currency): string {
   switch (error) {
     case 'empty':
       return 'Ingresa un monto.'

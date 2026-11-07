@@ -46,13 +46,16 @@ export type TransferErrors = {
   readonly description?: { readonly reason: 'tooLong'; readonly max: number }
 }
 
-export type OwnDestinationOption = { readonly account: TransferAccount; readonly check: CurrencyCheck }
+export type OwnDestinationOption<A extends TransferAccount = TransferAccount> = {
+  readonly account: A
+  readonly check: CurrencyCheck
+}
 
 /** "Mis cuentas": every own account except the source, each with whether it accepts the source's currency. */
-export function ownDestinationOptions(
+export function ownDestinationOptions<A extends TransferAccount>(
   source: TransferAccount,
-  accounts: readonly TransferAccount[],
-): readonly OwnDestinationOption[] {
+  accounts: readonly A[],
+): readonly OwnDestinationOption<A>[] {
   return accounts
     .filter((account) => account.id !== source.id)
     .map((account) => ({ account, check: canTransferBetween(source, account) }))

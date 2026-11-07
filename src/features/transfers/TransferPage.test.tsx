@@ -102,7 +102,8 @@ describe('TransferPage', () => {
     const user = userEvent.setup()
     setup((fake) => {
       fake.createTransfer.mockResolvedValue(transfer('pending'))
-      fake.getTransfer.mockResolvedValue(transfer('completed'))
+      // Settles on the second status check, about a second after creation.
+      fake.getTransfer.mockResolvedValueOnce(transfer('pending')).mockResolvedValue(transfer('completed'))
     })
     await reviewP2p(user)
 

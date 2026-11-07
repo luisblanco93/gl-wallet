@@ -25,12 +25,16 @@ export function useSingleSubmitMutation<TData, TVariables>(options: {
     retry: 0,
   })
 
-  /** `onSuccess` here runs after the hook's own (e.g. after the refetch), for screen feedback. */
-  function submit(variables: TVariables, callbacks: { readonly onSuccess?: (data: TData) => void } = {}): void {
+  /** These callbacks run after the hook's own (e.g. after the refetch), for screen feedback. */
+  function submit(
+    variables: TVariables,
+    callbacks: { readonly onSuccess?: (data: TData) => void; readonly onError?: (error: Error) => void } = {},
+  ): void {
     if (inFlight.current || queryClient.isMutating({ mutationKey }) > 0) return
     inFlight.current = true
     mutation.mutate(variables, {
       onSuccess: callbacks.onSuccess ? (data) => callbacks.onSuccess?.(data) : undefined,
+      onError: callbacks.onError ? (error) => callbacks.onError?.(error) : undefined,
       onSettled: () => {
         inFlight.current = false
       },
