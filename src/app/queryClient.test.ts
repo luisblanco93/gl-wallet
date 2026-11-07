@@ -1,4 +1,4 @@
-import { MutationObserver } from '@tanstack/react-query'
+import { MutationObserver, onlineManager } from '@tanstack/react-query'
 import { describe, expect, it, vi } from 'vitest'
 import { createApiClient } from '@/api/client'
 import { createQueryClient } from './queryClient'
@@ -47,6 +47,30 @@ describe('createQueryClient', () => {
     })
     await expect(observer.mutate()).rejects.toMatchObject({ kind: 'network' })
     expect(fetch).toHaveBeenCalledOnce()
+  })
+
+  it('sends a mutation while the browser reports offline instead of queueing it for later', async () => {
+    const { api, fetch, queryClient } = setup(() => Promise.reject(new TypeError('Failed to fetch')))
+    onlineManager.setOnline(false)
+    try {
+      const observer = new MutationObserver(queryClient, {
+        mutationFn: () => api.request('POST', '/transfers', { body: {} }),
+      })
+      await expect(observer.mutate()).rejects.toMatchObject({ kind: 'network' })
+      expect(fetch).toHaveBeenCalledOnce()
+    } finally {
+      onlineManager.setOnline(true)
+    }
+  })
+
+  it('fails a query while the browser reports offline instead of pausing it', async () => {
+    const { fetchAccounts } = setup(() => Promise.reject(new TypeError('Failed to fetch')))
+    onlineManager.setOnline(false)
+    try {
+      await expect(fetchAccounts()).rejects.toMatchObject({ kind: 'network' })
+    } finally {
+      onlineManager.setOnline(true)
+    }
   })
 
   it('gives each call a fresh client', () => {
